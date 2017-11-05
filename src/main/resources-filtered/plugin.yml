@@ -1,0 +1,6 @@
+name: ${artifactId}
+version: ${version}
+main: co.neweden.LootCrates.main
+author: armadyl010
+description: Spawns random Loot Crates in the world
+website: https://neweden.co
