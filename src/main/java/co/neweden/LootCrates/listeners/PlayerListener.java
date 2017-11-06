@@ -1,89 +1,88 @@
 package co.neweden.LootCrates.listeners;
 
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
+import co.neweden.LootCrates.Chances;
+
+import co.neweden.LootCrates.ChestSpawner;
+import org.bukkit.*;
+import org.bukkit.block.Chest;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityShootBowEvent;
-import org.bukkit.inventory.Inventory;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
+import static co.neweden.LootCrates.ConfigRetriever.MaxCrates;
+import static co.neweden.LootCrates.Timer.Time;
+
 
 public class PlayerListener implements Listener {
 
-    public ArrayList<Material> common = new ArrayList<Material>() {{
-        add(Material.LOG);
-        add(Material.WOOD_AXE);
-        //add(Material.BROWN_SHULKER_BOX);
-    }};
-    public ArrayList<Material> uncommon = new ArrayList<Material>() {{
-        add(Material.IRON_ORE);
-        add(Material.IRON_AXE);
-        //add(Material.SILVER_SHULKER_BOX);
-    }};
-    public ArrayList<Material> rare = new ArrayList<Material>() {{
-        add(Material.DIAMOND);
-        add(Material.DIAMOND_AXE);
-        //add(Material.YELLOW_SHULKER_BOX);
-    }};
-//
+    public static Player player;
+    public static int temp = Math.random() < 0.5 ? 0 : 1;
+    public static int Crates = 0;
+    ChestSpawner Cs = new ChestSpawner();
 
-    public double ChanceCalc() {
+    // Remove chest when close
+    @EventHandler
+    public void onChestClose(InventoryCloseEvent event){
+        if(event.getInventory().getHolder() instanceof Chest){
+            Chest c = (Chest)event.getInventory().getHolder();
+                    ItemStack[] items = event.getInventory().getContents();
 
-        double d = Math.random();
-        d = Math.round(d * 100.0) / 100.0;
-
-        return d;
+                    for(ItemStack item : items)
+                    {
+                        if(item != null) { return; }
+                    }
+                    //Run code to execute if the chest is empty.
+                    c.getLocation().getBlock().setType(Material.AIR);
+                    Crates = Crates - 1;
+        }
     }
-
 
     // check if it's a player who is shooting
     @EventHandler
     public void onArrowShoot(EntityShootBowEvent event) {
-        LivingEntity shooter = event.getEntity();
+        LivingEntity user = event.getEntity();
 
-        if (shooter instanceof Player) {
-            Player player = (Player) shooter;
-            Inventory inv = player.getInventory();
 
-            double d = ChanceCalc();
+        if (user instanceof Player) {
+            player = (Player) user;
 
-            // 5% chance of being here
-            if (d < 0.05) {
-                int temp = Math.random() < 0.5 ? 0 : 1;
-                player.sendMessage(ChatColor.GOLD + "You are so lucky !! : " + (d * 100) + " %");
-                player.sendMessage("An item was added to your inventory");
+            // Checks if we haven't spawned too many Crates
+            if (Crates < MaxCrates) {
 
-                ItemStack itemToAdd = new ItemStack(rare.get(temp), 1);
-                inv.addItem(itemToAdd);
+                double d = Chances.ChanceCalc();
 
+                // 5% chance of being here
+                if (d < 0.05) {
+                    player.sendMessage(ChatColor.GOLD + "You are so lucky !! : " + (d * 100) + " %");
+
+                    Cs.SpawnChest(3);
+                    Crates = Crates + 1;
+                }
+
+                // 20% chance of being here
+                else if (d > 0.05 && d < 0.25) {
+                    player.sendMessage(ChatColor.GREEN + "Wow ! : " + (d * 100) + " %");
+
+                    Cs.SpawnChest(2);
+                    Crates = Crates + 1;
+                }
+
+                // 75% chance of being here
+                else {
+                    player.sendMessage(ChatColor.RED + "Better next time : " + (d * 100) + " %");
+
+                    Cs.SpawnChest(1);
+                    Crates = Crates + 1;
+                }
 
             }
-
-            // 20% chance of being here
-            else if (d > 0.05 && d < 0.25) {
-                int temp = Math.random() < 0.5 ? 0 : 1;
-                player.sendMessage(ChatColor.GREEN + "Niceeee ! : " + (d * 100) + " %");
-                player.sendMessage("An item was added to your inventory");
-
-                ItemStack itemToAdd = new ItemStack(uncommon.get(temp), 1);
-                inv.addItem(itemToAdd);
-
-            }
-
-            // 75% chance of being here
-            else {
-                int temp = Math.random() < 0.5 ? 0 : 1;
-                player.sendMessage(ChatColor.RED + "Lucky next time : " + (d * 100) + " %");
-                player.sendMessage("An item was added to your inventory");
-
-                ItemStack itemToAdd = new ItemStack(common.get(temp), 1);
-                inv.addItem(itemToAdd);
-                //  String commandToSend = "setblock ~1 ~ ~ brown_shulker_box 0 replace {Items:[{id:\"stone\",Damage:6,Slot:0,Count:11},{id:\"wool\",Damage:11,Slot:2,Count:5},{id:\"gold_ore\",Slot:6,Count:33}],display:{Name:\"Best Chest around\",Lore:[\"mhm woah\",\"Lucky enough\"]}}";
-                //  Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), commandToSend);
-
+            // if we have reached MaxCrates set in config it will throw this error
+            else{
+                player.sendMessage(ChatColor.RED + "You have reached the max amount of crates that can be spawned at once !");
+                player.sendMessage(ChatColor.RED + "Wait " + Time + " seconds before they despawn");
             }
 
         }

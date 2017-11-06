@@ -1,0 +1,43 @@
+# LootCrates Plugin Config file
+# Version 0.1-Snapshot
+
+Worlds: world
+
+#max-spawned-time is set in minutes
+Crates:
+   max-amount: 5
+   max-spawned-time: 0.5
+   max-x-distance: 5000
+   min-x-distance: -5000
+   max-z-distance: 5000
+   min-z-distance: -5000
+
+mysql:
+   host: localhost
+   port: 3306
+   database: lootcrates
+   user: user
+   password: pass
+
+Items:
+  common:
+    - 'LOG'
+    - 'WOOD_AXE'
+  uncommon:
+    - 'IRON_ORE'
+    - 'IRON_AXE'
+  rare:
+    - 'DIAMOND'
+    - 'DIAMOND_AXE'
+
+# Messages will be either edited or removed in the future
+Messages:
+  common:
+    - 'Log'
+    - 'Wooden Axe'
+  uncommon:
+    - 'Iron Ore'
+    - 'Iron Axe'
+  rare:
+    - 'Diamond'
+    - 'Diamond Axe'
