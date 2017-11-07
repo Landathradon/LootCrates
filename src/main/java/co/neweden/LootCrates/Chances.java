@@ -4,6 +4,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class Chances {
 
+
     //calculate the chance to receive a good drop
     public static double ChanceCalc() {
 
@@ -19,6 +20,9 @@ public class Chances {
         return ThreadLocalRandom.current().nextInt(0, 100 + 1);
     }
 
+    public static int ChestInvSlotRm(){
+        return ThreadLocalRandom.current().nextInt(0,26  + 1);
+    }
 
 
 }

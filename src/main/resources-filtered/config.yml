@@ -19,25 +19,24 @@ mysql:
    user: user
    password: pass
 
+#Write items in caps
 Items:
-  common:
+  One-Star:
     - 'LOG'
     - 'WOOD_AXE'
-  uncommon:
+  Two-Star:
     - 'IRON_ORE'
     - 'IRON_AXE'
-  rare:
+  Three-Star:
     - 'DIAMOND'
     - 'DIAMOND_AXE'
+  Four-Star:
+    - 'BEACON'
+    - 'EMERALD'
+  Five-Star:
+    - 'NETHER_STAR'
+    - 'EMERALD_BLOCK'
 
-# Messages will be either edited or removed in the future
 Messages:
-  common:
-    - 'Log'
-    - 'Wooden Axe'
-  uncommon:
-    - 'Iron Ore'
-    - 'Iron Axe'
-  rare:
-    - 'Diamond'
-    - 'Diamond Axe'
+  Found-Chest: "Congratulations! You found a Loot Crate, these Crates are randomly generated, you can find more of them throughout the world!"
+  Break-Chest: "You cannot break this chest!"

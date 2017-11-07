@@ -8,50 +8,62 @@ import java.util.List;
 public class ConfigRetriever {
     private main plugin;
 
-    public static List<String> listCommon;
-    public static List<String> listUncommon;
-    public static List<String> listRare;
-    public static List<String> CommonMsg;
-    public static List<String> UncommonMsg;
-    public static List<String> RareMsg;
+    public static List<String> listOneStar;
+    public static List<String> listTwoStar;
+    public static List<String> listThreeStar;
+    public static List<String> listFourStar;
+    public static List<String> listFiveStar;
 
     public static String WorldConfig;
+    public static String FoundChest;
     public static int MaxCrates;
-    public static int MaxSpawnTime;
+    public static double MaxSpawnTime;
 
-    public static ArrayList<Material> common = new ArrayList<>();
-    public static ArrayList<Material> uncommon = new ArrayList<>();
-    public static ArrayList<Material> rare = new ArrayList<>();
+    public static ArrayList<Material> OneStar = new ArrayList<>();
+    public static ArrayList<Material> TwoStar = new ArrayList<>();
+    public static ArrayList<Material> ThreeStar = new ArrayList<>();
+    public static ArrayList<Material> FourStar = new ArrayList<>();
+    public static ArrayList<Material> FiveStar = new ArrayList<>();
 
     //Constructor | Retrieving everything from the Config.yml File
     public ConfigRetriever(main pl) {
         plugin = pl;
 
         //retrieving items from the config
-        listCommon = plugin.getConfig().getStringList("Items.common");
-        listUncommon = plugin.getConfig().getStringList("Items.uncommon");
-        listRare = plugin.getConfig().getStringList("Items.rare");
+        listOneStar = plugin.getConfig().getStringList("Items.One-Star");
+        listTwoStar = plugin.getConfig().getStringList("Items.Two-Star");
+        listThreeStar = plugin.getConfig().getStringList("Items.Three-Star");
+        listFourStar = plugin.getConfig().getStringList("Items.Four-Star");
+        listFiveStar = plugin.getConfig().getStringList("Items.Five-Star");
 
         //retrieving messages from the config
-        CommonMsg = plugin.getConfig().getStringList("Messages.common");
-        UncommonMsg = plugin.getConfig().getStringList("Messages.uncommon");
-        RareMsg = plugin.getConfig().getStringList("Messages.rare");
+        FoundChest = plugin.getConfig().getString("Messages.Found-Chest");
+
 
         //adding the items to their rarity list
-        ////One Star Crate List
-        common.add(Material.getMaterial(listCommon.get(0)));
-        common.add(Material.getMaterial(listCommon.get(1)));
+        //One Star Crate List
+        OneStar.add(Material.getMaterial(listOneStar.get(0)));
+        OneStar.add(Material.getMaterial(listOneStar.get(1)));
 
         //Two Star Crate List
-        uncommon.add(Material.getMaterial(listUncommon.get(0)));
-        uncommon.add(Material.getMaterial(listUncommon.get(1)));
+        TwoStar.add(Material.getMaterial(listTwoStar.get(0)));
+        TwoStar.add(Material.getMaterial(listTwoStar.get(1)));
 
         //Three Star Crate List
-        rare.add(Material.getMaterial(listRare.get(0)));
-        rare.add(Material.getMaterial(listRare.get(1)));
+        ThreeStar.add(Material.getMaterial(listThreeStar.get(0)));
+        ThreeStar.add(Material.getMaterial(listThreeStar.get(1)));
 
+        //Four Star Crate List
+        FourStar.add(Material.getMaterial(listFourStar.get(0)));
+        FourStar.add(Material.getMaterial(listFourStar.get(1)));
+
+        //Five Star Crate List
+        FiveStar.add(Material.getMaterial(listFiveStar.get(0)));
+        FiveStar.add(Material.getMaterial(listFiveStar.get(1)));
+
+        //Other Stuff
         WorldConfig = plugin.getConfig().getString("Worlds");
         MaxCrates = plugin.getConfig().getInt("Crates.max-amount");
-        MaxSpawnTime = plugin.getConfig().getInt("Crates.max-spawned-time");
+        MaxSpawnTime = plugin.getConfig().getDouble("Crates.max-spawned-time");
     }
 }

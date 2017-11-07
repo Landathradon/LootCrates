@@ -12,8 +12,9 @@ import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 
+import static co.neweden.LootCrates.ChestSpawner.ArrayIndex;
+import static co.neweden.LootCrates.ConfigRetriever.FoundChest;
 import static co.neweden.LootCrates.ConfigRetriever.MaxCrates;
-import static co.neweden.LootCrates.Timer.Time;
 
 
 public class PlayerListener implements Listener {
@@ -25,20 +26,27 @@ public class PlayerListener implements Listener {
 
     // Remove chest when close
     @EventHandler
-    public void onChestClose(InventoryCloseEvent event){
-        if(event.getInventory().getHolder() instanceof Chest){
-            Chest c = (Chest)event.getInventory().getHolder();
-                    ItemStack[] items = event.getInventory().getContents();
+    public void onChestClose(InventoryCloseEvent event) {
+        //mark as found in the db
+        if (player!=null ) {
+            if (event.getInventory().getHolder() instanceof Chest) {
+                Chest c = (Chest) event.getInventory().getHolder();
+                ItemStack[] items = event.getInventory().getContents();
 
-                    for(ItemStack item : items)
-                    {
-                        if(item != null) { return; }
+                for (ItemStack item : items) {
+                    if (item != null) {
+                        return;
                     }
-                    //Run code to execute if the chest is empty.
-                    c.getLocation().getBlock().setType(Material.AIR);
-                    Crates = Crates - 1;
+                }
+                //Run code to execute if the chest is empty.
+                player.sendMessage(FoundChest);
+                c.getLocation().getBlock().setType(Material.AIR);
+                Crates = Crates - 1;
+                ArrayIndex = ArrayIndex - 1;
+            }
         }
     }
+
 
     // check if it's a player who is shooting
     @EventHandler
@@ -50,29 +58,43 @@ public class PlayerListener implements Listener {
             player = (Player) user;
 
             // Checks if we haven't spawned too many Crates
-            if (Crates < MaxCrates) {
+            if (Crates <= MaxCrates) {
 
                 double d = Chances.ChanceCalc();
 
-                // 5% chance of being here
-                if (d < 0.05) {
-                    player.sendMessage(ChatColor.GOLD + "You are so lucky !! : " + (d * 100) + " %");
+                // 20% chance Five Star
+                if (d <= 0.20) {
+                    player.sendMessage(ChatColor.GREEN + "You are so lucky !! : " + (d * 100) + " %");
+
+                    Cs.SpawnChest(5);
+                    Crates = Crates + 1;
+                }
+
+                // 20% chance Four Star
+                else if (d > 0.20 && d <= 0.40) {
+                    player.sendMessage(ChatColor.AQUA + "Wow ! : " + (d * 100) + " %");
+
+                    Cs.SpawnChest(4);
+                    Crates = Crates + 1;
+                }
+
+                // 20% chance Three Star
+                else if (d > 0.40 && d <= 0.60){
+                    player.sendMessage(ChatColor.GOLD + "Not so bad : " + (d * 100) + " %");
 
                     Cs.SpawnChest(3);
                     Crates = Crates + 1;
                 }
-
-                // 20% chance of being here
-                else if (d > 0.05 && d < 0.25) {
-                    player.sendMessage(ChatColor.GREEN + "Wow ! : " + (d * 100) + " %");
+                // 20% chance Two Star
+                else if (d > 0.60 && d <= 0.80){
+                    player.sendMessage(ChatColor.YELLOW + "Better next time : " + (d * 100) + " %");
 
                     Cs.SpawnChest(2);
                     Crates = Crates + 1;
                 }
-
-                // 75% chance of being here
+                // 20% chance One Star
                 else {
-                    player.sendMessage(ChatColor.RED + "Better next time : " + (d * 100) + " %");
+                    player.sendMessage(ChatColor.RED + "Meh (╯°□°）╯︵ ┻━┻ : " + (d * 100) + " %");
 
                     Cs.SpawnChest(1);
                     Crates = Crates + 1;
@@ -82,7 +104,6 @@ public class PlayerListener implements Listener {
             // if we have reached MaxCrates set in config it will throw this error
             else{
                 player.sendMessage(ChatColor.RED + "You have reached the max amount of crates that can be spawned at once !");
-                player.sendMessage(ChatColor.RED + "Wait " + Time + " seconds before they despawn");
             }
 
         }
