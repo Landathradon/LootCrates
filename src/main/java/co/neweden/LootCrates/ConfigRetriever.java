@@ -8,17 +8,27 @@ import java.util.List;
 public class ConfigRetriever {
     private main plugin;
 
+    //Item list
     public static List<String> listOneStar;
     public static List<String> listTwoStar;
     public static List<String> listThreeStar;
     public static List<String> listFourStar;
     public static List<String> listFiveStar;
 
+    //MYSQL
+    public static String username;
+    public static String password;
+    public static String port;
+    public static String host;
+    public static String database;
+
+    //Other Stuff
     public static String WorldConfig;
     public static String FoundChest;
     public static int MaxCrates;
     public static double MaxSpawnTime;
 
+    //Item list
     public static ArrayList<Material> OneStar = new ArrayList<>();
     public static ArrayList<Material> TwoStar = new ArrayList<>();
     public static ArrayList<Material> ThreeStar = new ArrayList<>();
@@ -39,6 +49,13 @@ public class ConfigRetriever {
         //retrieving messages from the config
         FoundChest = plugin.getConfig().getString("Messages.Found-Chest");
 
+
+        //MYSQL config
+        username = plugin.getConfig().getString("mysql.user");
+        password = plugin.getConfig().getString("mysql.password");
+        port = plugin.getConfig().getString("mysql.port");
+        host = plugin.getConfig().getString("mysql.host");
+        database = plugin.getConfig().getString("mysql.database");
 
         //adding the items to their rarity list
         //One Star Crate List

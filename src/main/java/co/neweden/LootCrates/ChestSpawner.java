@@ -11,8 +11,6 @@ import static co.neweden.LootCrates.listeners.PlayerListener.temp;
 import static co.neweden.LootCrates.listeners.PlayerListener.player;
 
 public class ChestSpawner {
-    public static int[ ][ ] ChestLocArray = new int[5][4];
-    public static int ArrayIndex = 0;
 
     //Spawn a chest with specified items and names
     public void SpawnChest(int luck){
@@ -71,16 +69,10 @@ public class ChestSpawner {
         ds.setItemMeta(dm);
         ChestInv.setItem(Chances.ChestInvSlotRm(), ds);
 
-        //Using for now until i get a db
-        ChestLocArray[ArrayIndex][0] = Crates;
-        ChestLocArray[ArrayIndex][1] = x;
-        ChestLocArray[ArrayIndex][2] = y;
-        ChestLocArray[ArrayIndex][3] = z;
+        Database.addChestToDatabase(chestLoc.getWorld().getName(),Crates,x,y,z,luck);
 
-        player.sendMessage(ChatColor.BLUE + "DEBUG | Index value: " + ArrayIndex + " | Array Values;Crates: " + ChestLocArray[ArrayIndex][0] + " X: " + ChestLocArray[ArrayIndex][1] + " Y: " + ChestLocArray[ArrayIndex][2] + " Z: " + ChestLocArray[ArrayIndex][3]);
         player.sendMessage("A Special Chest " + tier + " has spawned");
-        ArrayIndex = ArrayIndex + 1;
-        Timer.OnCrateCreated();
+        //Timer.OnCrateCreated();
 
     }
 

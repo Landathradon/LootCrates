@@ -5,10 +5,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 
-import static co.neweden.LootCrates.ChestSpawner.ChestLocArray;
-import static co.neweden.LootCrates.ChestSpawner.ArrayIndex;
 import static co.neweden.LootCrates.ConfigRetriever.MaxSpawnTime;
-import static co.neweden.LootCrates.listeners.PlayerListener.Crates;
 import static co.neweden.LootCrates.listeners.PlayerListener.player;
 
 public class Timer{
@@ -24,36 +21,25 @@ public class Timer{
         player.sendMessage("The crate is about to despawn in: "+ TimeSecs);
 
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            player.sendMessage(ChatColor.BLUE + "DEBUG | OnCrateCreated Function");
-            DespawnChest();
+            //DespawnChest();
         },GameTicks);
 
     }
 
     public static void DespawnChest() {
-        //get chest locs from db
-        player.sendMessage(ChatColor.BLUE + "DEBUG | Top of DespawnChest");
+        //Database.retrieveChest() //get chest locs from db
         int x = 0;
         int y = 0;
         int z = 0;
 
-        int i;
-        for (i = 0; i < ChestLocArray.length; i++) {
-// made progress but im stuck here with this loop and deleting stuff ( Will wait till database is ready)
-            ChestLocArray[i][0] = Crates;
-            ChestLocArray[i][1] = x;
-            ChestLocArray[i][2] = y;
-            ChestLocArray[i][3] = z;
-
+            //for loop for each chests
             player.sendMessage(ChatColor.BLUE + "DEBUG | Despawning chests from Array");
             Block newBlock = plugin.getServer().getWorlds().get(0).getBlockAt(x, y, z);
             newBlock.setType(Material.AIR);
             //String commandToSend = "setblock ~" + x + " ~" + y + " ~" + z + " air";
             //Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), commandToSend);
-        }
-        Crates = Crates - i;
-        ArrayIndex = ArrayIndex - i;
-        i = 0;
+            //Database.removeChestEvent(x, y, z);
+
 
     }
 

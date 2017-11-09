@@ -3,6 +3,7 @@ package co.neweden.LootCrates.listeners;
 import co.neweden.LootCrates.Chances;
 
 import co.neweden.LootCrates.ChestSpawner;
+import co.neweden.LootCrates.Database;
 import org.bukkit.*;
 import org.bukkit.block.Chest;
 import org.bukkit.entity.*;
@@ -10,9 +11,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
 
-import static co.neweden.LootCrates.ChestSpawner.ArrayIndex;
 import static co.neweden.LootCrates.ConfigRetriever.FoundChest;
 import static co.neweden.LootCrates.ConfigRetriever.MaxCrates;
 
@@ -27,10 +28,13 @@ public class PlayerListener implements Listener {
     // Remove chest when close
     @EventHandler
     public void onChestClose(InventoryCloseEvent event) {
-        //mark as found in the db
         if (player!=null ) {
             if (event.getInventory().getHolder() instanceof Chest) {
                 Chest c = (Chest) event.getInventory().getHolder();
+
+                //Chest was found by a player | marking it as found
+                Database.chestIsFound(player.getDisplayName(),c.getX(),c.getY(),c.getZ());
+
                 ItemStack[] items = event.getInventory().getContents();
 
                 for (ItemStack item : items) {
@@ -38,21 +42,27 @@ public class PlayerListener implements Listener {
                         return;
                     }
                 }
+                Database.removeChestEvent(c.getX(),c.getY(),c.getZ());
                 //Run code to execute if the chest is empty.
                 player.sendMessage(FoundChest);
                 c.getLocation().getBlock().setType(Material.AIR);
-                Crates = Crates - 1;
-                ArrayIndex = ArrayIndex - 1;
+                //Crates = Crates - 1;
             }
         }
     }
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent event){
+        Player player = event.getPlayer();
+        String pname= player.getDisplayName();
+        Database.initPlayerChestCount(pname);
+    }
+
 
 
     // check if it's a player who is shooting
     @EventHandler
     public void onArrowShoot(EntityShootBowEvent event) {
         LivingEntity user = event.getEntity();
-
 
         if (user instanceof Player) {
             player = (Player) user;

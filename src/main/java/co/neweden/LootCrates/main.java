@@ -7,8 +7,10 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.sql.SQLException;
+
 public class main extends JavaPlugin implements Listener {
-    private static Plugin plugin;
+    public static Plugin plugin;
 
         // When the plugin load/unload
         @Override
@@ -21,12 +23,23 @@ public class main extends JavaPlugin implements Listener {
             ConfigRetriever cfr = new ConfigRetriever(this);
             Timer timer = new Timer(this);
 
-            // LoadDb();
+            Database.initDatabase();
+
 
         }
 
         @Override
         public void onDisable() {
+
+            //Database.deleteChest();//remove all chests from the database and delete them
+            Database.removeChests();
+            try {
+                Database.getConnection().close();
+                this.getLogger().info("Database Connection has stopped");
+            } catch (SQLException e) {
+                //e.printStackTrace();
+                this.getLogger().info("Database Connection could not stop!!");
+            }
             this.getLogger().info("LootCrates has now stopped");
         }
         public static Plugin getPlugin() {
@@ -39,8 +52,5 @@ public class main extends JavaPlugin implements Listener {
 
             pm.registerEvents(new PlayerListener(), this);
         }
-
-//SQL query for later
-//"CREATE TABLE IF NOT EXISTS `loots` ( `name` VARCHAR(48) NOT NULL , `total_amount` INT UNSIGNED NOT NULL DEFAULT '0' , `one_star` INT UNSIGNED NOT NULL DEFAULT '0' , `two_star` INT UNSIGNED NOT NULL DEFAULT '0' , `three_star` INT UNSIGNED NOT NULL DEFAULT '0' , `four_star` INT UNSIGNED NOT NULL DEFAULT '0' , `five_star` INT UNSIGNED NOT NULL DEFAULT '0' , PRIMARY KEY (`name`(48)))"
 
 }
