@@ -3,28 +3,28 @@ package co.neweden.LootCrates;
 import java.sql.*;
 
 import static co.neweden.LootCrates.ConfigRetriever.*;
+import static co.neweden.LootCrates.main.con;
 import static co.neweden.LootCrates.main.plugin;
 
 
 public class Database {
 
-
+    public static Connection connection = null;
 
     public static Connection getConnection() throws SQLException {
 
-                Connection conn = null;
-                try{
-                    Class.forName("com.mysql.jdbc.Driver");
-                    conn = DriverManager.getConnection("jdbc:mysql://"+host+":"+port+"/"+database+"?autoReconnect=true&useSSL=false", username, password);
+        try{
+            Class.forName("com.mysql.jdbc.Driver");
+            connection = DriverManager.getConnection("jdbc:mysql://"+host+":"+port+"/"+database+"?autoReconnect=true", username, password);
 
-                }catch(SQLException se){
-                    //se.printStackTrace();
-                    plugin.getLogger().info("Database connection failed!! Please verify your MYSQL Config !!");
-                }catch(Exception e){
-                    //e.printStackTrace();
-                    plugin.getLogger().info("Database connection failed!! Please verify your MYSQL Config !!");
-                }
-                return conn;
+            }catch(SQLException se){
+                //se.printStackTrace();
+                 plugin.getLogger().info("Database connection failed!! Please verify your MYSQL Config !!");
+            }catch(Exception e){
+                 //e.printStackTrace();
+                 plugin.getLogger().info("Database connection failed!! Please verify your MYSQL Config !!");
+            }
+        return connection;
     }
 
     public static void initDatabase(){
@@ -50,14 +50,14 @@ public class Database {
                 "\tUNIQUE (`number`)\n" +
                 ");";
         try {
-            PreparedStatement stmt = getConnection().prepareStatement(sql);
+            PreparedStatement stmt = con.prepareStatement(sql);
             stmt.executeUpdate();
         } catch (SQLException e) {
             //e.printStackTrace();
             plugin.getLogger().info("Could not Create loots Table!! Please verify your MYSQL Config !!");
         }
         try {
-            PreparedStatement stmt2 = getConnection().prepareStatement(sql2);
+            PreparedStatement stmt2 = con.prepareStatement(sql2);
             stmt2.executeUpdate();
             plugin.getLogger().info("Database init() Verified");
         } catch (SQLException e) {
@@ -68,10 +68,16 @@ public class Database {
 
     public static void addChestToDatabase(String w, int num, int x, int y, int z, int tier){
 
-    String sql = "INSERT INTO `chests` (`world`, `number`, `x`, `y`, `z`, `tier`, `found`) VALUES ('" + w + "', '" + num + "', '" + x + "', '" + y + "', '" + z + "', '" + tier + "', '0')";
+        String sql = "INSERT INTO `chests` (`world`, `number`, `x`, `y`, `z`, `tier`, `found`) VALUES (?, ?, ?, ?, ?, ?, '0')";
 
         try {
-            PreparedStatement stmt = getConnection().prepareStatement(sql);
+            PreparedStatement stmt = con.prepareStatement(sql);
+            stmt.setString(1, w);
+            stmt.setInt(2, num);
+            stmt.setInt(3, x);
+            stmt.setInt(4, y);
+            stmt.setInt(5, z);
+            stmt.setInt(6, tier);
             stmt.executeUpdate();
             plugin.getLogger().info("Chest #" + num + " Added to Database");
         } catch (SQLException e) {
@@ -85,10 +91,11 @@ public class Database {
     public static void initPlayerChestCount(String name){
 
         //get user data
-        String sql = "INSERT INTO `loots` (`name`, `total_amount`, `one_star`, `two_star`, `three_star`, `four_star`, `five_star`) VALUES ('" + name + "', '0', '0', '0', '0', '0', '0')";
+        String sql = "INSERT INTO `loots` (`name`, `total_amount`, `one_star`, `two_star`, `three_star`, `four_star`, `five_star`) VALUES (?, '0', '0', '0', '0', '0', '0')";
 
         try {
-            PreparedStatement stmt = getConnection().prepareStatement(sql);
+            PreparedStatement stmt = con.prepareStatement(sql);
+            stmt.setString(1, name);
             stmt.executeUpdate();
             plugin.getLogger().info("Added player: " + name + " to Database");
         } catch (SQLException e) {
@@ -102,15 +109,16 @@ public class Database {
 
         String sql = "SELECT * FROM `loots` WHERE `name`='" +  name + "'";
 
-        int sqltot = 0;
-        int sqlone = 0;
-        int sqltwo = 0;
-        int sqlthree = 0;
-        int sqlfour = 0;
-        int sqlfive = 0;
+        int sqltot;
+        int sqlone;
+        int sqltwo;
+        int sqlthree;
+        int sqlfour;
+        int sqlfive;
+        int ar[] = new int[6];
 
         try {
-            Statement stmt = getConnection().createStatement();
+            Statement stmt = con.createStatement();
             ResultSet rs = stmt.executeQuery(sql);
 
             // iterate through the java resultset
@@ -123,58 +131,62 @@ public class Database {
                 sqlfour = rs.getInt("four_star");
                 sqlfive = rs.getInt("five_star");
 
+                ar[0] = sqltot;
+                ar[1] = sqlone;
+                ar[2] = sqltwo;
+                ar[3] = sqlthree;
+                ar[4] = sqlfour;
+                ar[5] = sqlfive;
             }
-            stmt.close();
         } catch (SQLException e1) {
             e1.printStackTrace();
         }
-        int ar[] = new int[6];
-        ar[0] = sqltot;
-        ar[1] = sqlone;
-        ar[2] = sqltwo;
-        ar[3] = sqlthree;
-        ar[4] = sqlfour;
-        ar[5] = sqlfive;
+
 
         return ar;
 
     }
 
-    public static int chestNumberReturn(int x, int y, int z){
+    public static int[] chestNumberReturn(int x, int y, int z){
 
-        int sqlnm = 0;
+            int sqlnm = 0;
+            int ar[] = new int[6];
 
-        String sql = "SELECT number FROM chests WHERE (`x` = '" + x + "' AND `y` = '" + y + "' AND `z` = '" + z + "') GROUP BY number HAVING COUNT(DISTINCT x)=1";
+            String sql = "SELECT number FROM chests WHERE (`x` = '" + x + "' AND `y` = '" + y + "' AND `z` = '" + z + "') GROUP BY number HAVING COUNT(DISTINCT x)=1";
 
-        try {
-            Statement stmt = getConnection().createStatement();
-            ResultSet rs = stmt.executeQuery(sql);
+            try {
+                Statement stmt = con.createStatement();
+                ResultSet rs = stmt.executeQuery(sql);
 
-            // iterate through the java resultset
-            while (rs.next()) {
-                sqlnm = rs.getInt("number");
+                // iterate through the java resultset
+                while (rs.next()) {
+                    sqlnm = rs.getInt("number");
+
+                    ar[0] = sqlnm;
+                    ar[1] = 1;
+                }
+            } catch (SQLException e1) {
+                ar[1] = 0;
+                plugin.getLogger().info("Reported Chest was not found");
             }
-            stmt.close();
-        } catch (SQLException e1) {
-            plugin.getLogger().info("Reported Chest was not found");
-        }
-        return sqlnm;
+
+            return ar;
+
     }
 
-    public static void chestIsFound(String name, int x, int y, int z){
-
-        int sqlnm = chestNumberReturn(x, y, z);
-        int sqlx = 0;
-        int sqly = 0;
-        int sqlz = 0;
-        int sqltier = 0;
-        int sqlfound = 0; //0 = false; 1 = true;
-
+    public static int[] getChestFromNum(int num){
+        int ar[] = new int[6];
+        int sqlnm = num;
+        int sqlx;
+        int sqly;
+        int sqlz;
+        int sqltier;
+        int sqlfound; //0 = false; 1 = true;
 
         String sql2 = "SELECT * FROM `chests` WHERE `number` = '" + sqlnm + "'";
 
         try {
-            Statement stmt = getConnection().createStatement();
+            Statement stmt = con.createStatement();
             ResultSet rs = stmt.executeQuery(sql2);
 
             // iterate through the java resultset
@@ -186,12 +198,33 @@ public class Database {
                 sqltier = rs.getInt("tier");
                 sqlfound = rs.getInt("found");
 
+                ar[0] = sqlnm;
+                ar[1] = sqlx;
+                ar[2] = sqly;
+                ar[3] = sqlz;
+                ar[4] = sqltier;
+                ar[5] = sqlfound;
+
             }
-            stmt.close();
         } catch (SQLException e1) {
             e1.printStackTrace();
             plugin.getLogger().info("Could not retrieve chest# " + sqlnm + " data!!");
         }
+        return ar;
+    }
+
+    public static void chestIsFound(String name, int x, int y, int z){
+
+        int[] value = chestNumberReturn(x, y, z);
+        int sqlnm = value[0];
+        int[] chest = getChestFromNum(sqlnm);
+        int sqlx = chest[1];
+        int sqly = chest[2];
+        int sqlz = chest[3];
+        int sqltier = chest[4];
+        int sqlfound = chest[5]; //0 = false; 1 = true;
+
+
 
         //Checks if the Coordinates are equal and if the Crate hasn't been found
         if(sqlx == x && sqly == y && sqlz == z){
@@ -216,10 +249,11 @@ public class Database {
                 int newfive = ar2[5];
 
                 //Mark the chest as found
-                String sql3 = "UPDATE `chests` SET `found` = '1' WHERE `number` = '" + sqlnm + "'";
+                String sql3 = "UPDATE `chests` SET `found` = '1' WHERE `number` = ?";
 
                 try {
-                    PreparedStatement stmt = getConnection().prepareStatement(sql3);
+                    PreparedStatement stmt = con.prepareStatement(sql3);
+                    stmt.setInt(1, sqlnm);
                     stmt.executeUpdate();
                     plugin.getLogger().info("Chest # " + sqlnm + ",Tier: " + sqltier + " was found by player: " + name + "");
                 } catch (SQLException e) {
@@ -228,10 +262,17 @@ public class Database {
                 }
 
                 //Update current player number of chest found
-                String sql4 = "UPDATE `loots` SET `total_amount` = '" + newtot + "', `one_star` = '" + newone + "', `two_star` = '" + newtwo + "', `three_star` = '" + newthree + "', `four_star` = '" + newfour + "', `five_star` = '" + newfive + "' WHERE `loots`.`name` = '" +  name + "'";
+                String sql4 = "UPDATE `loots` SET `total_amount` = ?, `one_star` = ?, `two_star` = ?, `three_star` = ?, `four_star` = ?, `five_star` = ? WHERE `loots`.`name` = ?";
 
                 try {
-                    PreparedStatement stmt = getConnection().prepareStatement(sql4);
+                    PreparedStatement stmt = con.prepareStatement(sql4);
+                    stmt.setInt(1, newtot);
+                    stmt.setInt(2, newone);
+                    stmt.setInt(3, newtwo);
+                    stmt.setInt(4, newthree);
+                    stmt.setInt(5, newfour);
+                    stmt.setInt(6, newfive);
+                    stmt.setString(7, name);
                     stmt.executeUpdate();
                     plugin.getLogger().info("Updated player: " + name + " Chest data");
                 } catch (SQLException e) {
@@ -248,11 +289,11 @@ public class Database {
     public static int[] addPlayerChestCount(int tier, int tot, int one, int two, int three, int four, int five){
 
         int caltot = tot;
-        int calone = 0;
-        int caltwo = 0;
-        int calthree = 0;
-        int calfour = 0;
-        int calfive = 0;
+        int calone = one;
+        int caltwo = two;
+        int calthree = three;
+        int calfour = four;
+        int calfive = five;
 
         if(tier == 1){caltot++;calone = one + 1;}
         if(tier == 2){caltot++;caltwo = two + 1;}
@@ -280,7 +321,7 @@ public class Database {
         String sql = "TRUNCATE TABLE `chests`";
 
         try {
-            PreparedStatement stmt = getConnection().prepareStatement(sql);
+            PreparedStatement stmt = con.prepareStatement(sql);
             stmt.executeUpdate();
             plugin.getLogger().info("Chests cleared from Database");
         } catch (SQLException e) {
@@ -291,12 +332,13 @@ public class Database {
 
     public static void removeChestEvent(int x, int y, int z) {
 
-       int num = chestNumberReturn(x, y, z);
+       int[] num = chestNumberReturn(x, y, z);
 
-        String sql = "DELETE FROM `chests` WHERE number = '" + num + "';";
+        String sql = "DELETE FROM `chests` WHERE number = ?";
 
         try {
-            PreparedStatement stmt = getConnection().prepareStatement(sql);
+            PreparedStatement stmt = con.prepareStatement(sql);
+            stmt.setInt(1, num[0]);
             stmt.executeUpdate();
             plugin.getLogger().info("Chest cleared from Database");
         } catch (SQLException e) {

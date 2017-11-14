@@ -1,5 +1,6 @@
 package co.neweden.LootCrates;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 
 import java.util.ArrayList;
@@ -25,8 +26,16 @@ public class ConfigRetriever {
     //Other Stuff
     public static String WorldConfig;
     public static String FoundChest;
+    public static String BreakChest;
     public static int MaxCrates;
     public static double MaxSpawnTime;
+    public static String lootcrates = ChatColor.GRAY + "[" + ChatColor.GOLD + "LootCrates" + ChatColor.GRAY + "] ";
+
+    //Max Distance Allowed
+    public static int max_x;
+    public static int min_x;
+    public static int max_z;
+    public static int min_z;
 
     //Item list
     public static ArrayList<Material> OneStar = new ArrayList<>();
@@ -48,7 +57,7 @@ public class ConfigRetriever {
 
         //retrieving messages from the config
         FoundChest = plugin.getConfig().getString("Messages.Found-Chest");
-
+        BreakChest = plugin.getConfig().getString("Messages.Break-Chest");
 
         //MYSQL config
         username = plugin.getConfig().getString("mysql.user");
@@ -82,5 +91,11 @@ public class ConfigRetriever {
         WorldConfig = plugin.getConfig().getString("Worlds");
         MaxCrates = plugin.getConfig().getInt("Crates.max-amount");
         MaxSpawnTime = plugin.getConfig().getDouble("Crates.max-spawned-time");
+
+        //Max Distance Allowed
+        max_x = plugin.getConfig().getInt("Crates.max-x-distance");
+        min_x = plugin.getConfig().getInt("Crates.min-x-distance");
+        max_z = plugin.getConfig().getInt("Crates.max-z-distance");
+        min_z = plugin.getConfig().getInt("Crates.min-z-distance");
     }
 }

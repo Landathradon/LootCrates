@@ -7,11 +7,15 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.sql.Connection;
 import java.sql.SQLException;
+
+import static co.neweden.LootCrates.Database.getConnection;
 
 public class main extends JavaPlugin implements Listener {
     public static Plugin plugin;
 
+    public static Connection con;
         // When the plugin load/unload
         @Override
         public void onEnable() {
@@ -23,6 +27,12 @@ public class main extends JavaPlugin implements Listener {
             ConfigRetriever cfr = new ConfigRetriever(this);
             Timer timer = new Timer(this);
 
+            try {
+                con = getConnection();
+            } catch (SQLException e) {
+                e.printStackTrace();
+                plugin.getLogger().info("Database connection failed!! Please verify your MYSQL Config !!");
+            }
             Database.initDatabase();
 
 
@@ -34,7 +44,7 @@ public class main extends JavaPlugin implements Listener {
             //Database.deleteChest();//remove all chests from the database and delete them
             Database.removeChests();
             try {
-                Database.getConnection().close();
+                con.close();
                 this.getLogger().info("Database Connection has stopped");
             } catch (SQLException e) {
                 //e.printStackTrace();
@@ -42,10 +52,6 @@ public class main extends JavaPlugin implements Listener {
             }
             this.getLogger().info("LootCrates has now stopped");
         }
-        public static Plugin getPlugin() {
-            return plugin;
-        }
-
 
         private void registerEvents() {
             PluginManager pm = getServer().getPluginManager();

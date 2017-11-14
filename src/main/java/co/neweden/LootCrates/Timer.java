@@ -1,9 +1,8 @@
 package co.neweden.LootCrates;
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.block.Block;
+import org.bukkit.*;
+import org.bukkit.block.Chest;
+import org.bukkit.inventory.Inventory;
 
 import static co.neweden.LootCrates.ConfigRetriever.MaxSpawnTime;
 import static co.neweden.LootCrates.listeners.PlayerListener.player;
@@ -17,30 +16,34 @@ public class Timer{
         plugin = pl;
     }
 
-    public static void OnCrateCreated(){
+    public static void OnCrateCreated(int num){
         player.sendMessage("The crate is about to despawn in: "+ TimeSecs);
 
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            //DespawnChest();
+            DespawnChest(num);
         },GameTicks);
 
     }
 
-    public static void DespawnChest() {
-        //Database.retrieveChest() //get chest locs from db
-        int x = 0;
-        int y = 0;
-        int z = 0;
+    public static void DespawnChest(int num) {
+        int[] chest = Database.getChestFromNum(num); //get chest locs from db
+        int x = chest[1];
+        int y = chest[2];
+        int z = chest[3];
+        int found = chest[5];
 
-            //for loop for each chests
-            player.sendMessage(ChatColor.BLUE + "DEBUG | Despawning chests from Array");
-            Block newBlock = plugin.getServer().getWorlds().get(0).getBlockAt(x, y, z);
-            newBlock.setType(Material.AIR);
-            //String commandToSend = "setblock ~" + x + " ~" + y + " ~" + z + " air";
-            //Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), commandToSend);
-            //Database.removeChestEvent(x, y, z);
+        if(found == 0) {
 
+            World w = Bukkit.getWorld(ConfigRetriever.WorldConfig);
+            Location chestLoc = new Location(w, x, y, z);
+            Chest ch = (Chest) chestLoc.getBlock().getState();
+            Inventory ChestInv = ch.getInventory();
+            ChestInv.clear();
 
+            chestLoc.getBlock().setType(Material.AIR);
+            Database.removeChestEvent(x, y, z);
+
+        }
     }
 
 }

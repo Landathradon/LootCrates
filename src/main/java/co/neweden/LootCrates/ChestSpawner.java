@@ -18,9 +18,9 @@ public class ChestSpawner {
         Material ItemReceived = Material.AIR;
         String tier = "☆";
         int ItemAmount = 0;
-        int x = Chances.RandomLocation();
-        int y = 100;
-        int z = Chances.RandomLocation();
+        int x = Chances.RandomLocationX();
+        int y = 100; // MUST BE ON TOP OF GROUND
+        int z = Chances.RandomLocationZ();
 
         //One Star loot config Setup
         if (luck == 1){
@@ -72,7 +72,7 @@ public class ChestSpawner {
         Database.addChestToDatabase(chestLoc.getWorld().getName(),Crates,x,y,z,luck);
 
         player.sendMessage("A Special Chest " + tier + " has spawned");
-        //Timer.OnCrateCreated();
+        Timer.OnCrateCreated(Crates);
 
     }
 
