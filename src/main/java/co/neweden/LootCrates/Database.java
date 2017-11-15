@@ -4,6 +4,7 @@ import java.sql.*;
 
 import static co.neweden.LootCrates.ConfigRetriever.*;
 import static co.neweden.LootCrates.main.con;
+import static co.neweden.LootCrates.main.debugActive;
 import static co.neweden.LootCrates.main.plugin;
 
 
@@ -19,10 +20,10 @@ public class Database {
 
             }catch(SQLException se){
                 //se.printStackTrace();
-                 plugin.getLogger().info("Database connection failed!! Please verify your MYSQL Config !!");
+            debugActive(true,"Database connection failed!! Please verify your MYSQL Config !!");
             }catch(Exception e){
                  //e.printStackTrace();
-                 plugin.getLogger().info("Database connection failed!! Please verify your MYSQL Config !!");
+            debugActive(true,"Database connection failed!! Please verify your MYSQL Config !!");
             }
         return connection;
     }
@@ -47,6 +48,7 @@ public class Database {
                 "    `z` INT(6) NOT NULL,\n" +
                 "    `tier` TINYINT(5) UNSIGNED NOT NULL,\n" +
                 "    `found` BOOLEAN NOT NULL DEFAULT FALSE,\n" +
+                "    `opened` BOOLEAN NOT NULL DEFAULT FALSE,\n" +
                 "\tUNIQUE (`number`)\n" +
                 ");";
         try {
@@ -54,15 +56,15 @@ public class Database {
             stmt.executeUpdate();
         } catch (SQLException e) {
             //e.printStackTrace();
-            plugin.getLogger().info("Could not Create loots Table!! Please verify your MYSQL Config !!");
+            debugActive(true,"Could not Create loots Table!! Please verify your MYSQL Config !!");
         }
         try {
             PreparedStatement stmt2 = con.prepareStatement(sql2);
             stmt2.executeUpdate();
-            plugin.getLogger().info("Database init() Verified");
+            debugActive(true,"Database init() Verified");
         } catch (SQLException e) {
             //e.printStackTrace();
-            plugin.getLogger().info("Could not Create chests Table!! Please verify your MYSQL Config !!");
+            debugActive(true,"Could not Create chests Table!! Please verify your MYSQL Config !!");
         }
     }
 
@@ -79,10 +81,10 @@ public class Database {
             stmt.setInt(5, z);
             stmt.setInt(6, tier);
             stmt.executeUpdate();
-            plugin.getLogger().info("Chest #" + num + " Added to Database");
+            debugActive(false,"Chest #" + num + " Added to Database");
         } catch (SQLException e) {
             //e.printStackTrace();
-            plugin.getLogger().info("Chest #" + num + " Could not be added !!");
+            debugActive(false,"Chest #" + num + " Could not be added !!");
         }
 
 
@@ -97,10 +99,10 @@ public class Database {
             PreparedStatement stmt = con.prepareStatement(sql);
             stmt.setString(1, name);
             stmt.executeUpdate();
-            plugin.getLogger().info("Added player: " + name + " to Database");
+            debugActive(false,"Added player: " + name + " to Database");
         } catch (SQLException e) {
             //e.printStackTrace();
-            plugin.getLogger().info("Duplicate player, not adding");
+            debugActive(false,"Duplicate player, not adding");
         }
 
     }
@@ -150,7 +152,7 @@ public class Database {
     public static int[] chestNumberReturn(int x, int y, int z){
 
             int sqlnm = 0;
-            int ar[] = new int[6];
+            int ar[] = new int[2];
 
             String sql = "SELECT number FROM chests WHERE (`x` = '" + x + "' AND `y` = '" + y + "' AND `z` = '" + z + "') GROUP BY number HAVING COUNT(DISTINCT x)=1";
 
@@ -167,7 +169,7 @@ public class Database {
                 }
             } catch (SQLException e1) {
                 ar[1] = 0;
-                plugin.getLogger().info("Reported Chest was not found");
+                debugActive(false,"Reported Chest was not found");
             }
 
             return ar;
@@ -175,13 +177,14 @@ public class Database {
     }
 
     public static int[] getChestFromNum(int num){
-        int ar[] = new int[6];
+        int ar[] = new int[8];
         int sqlnm = num;
         int sqlx;
         int sqly;
         int sqlz;
         int sqltier;
         int sqlfound; //0 = false; 1 = true;
+        int sqlopened; //0 = false; 1 = true;
 
         String sql2 = "SELECT * FROM `chests` WHERE `number` = '" + sqlnm + "'";
 
@@ -197,6 +200,7 @@ public class Database {
                 sqlz = rs.getInt("z");
                 sqltier = rs.getInt("tier");
                 sqlfound = rs.getInt("found");
+                sqlopened = rs.getInt("opened");
 
                 ar[0] = sqlnm;
                 ar[1] = sqlx;
@@ -204,11 +208,14 @@ public class Database {
                 ar[3] = sqlz;
                 ar[4] = sqltier;
                 ar[5] = sqlfound;
+                ar[6] = sqlopened;
+                ar[7] = 1;
 
             }
         } catch (SQLException e1) {
             e1.printStackTrace();
-            plugin.getLogger().info("Could not retrieve chest# " + sqlnm + " data!!");
+            ar[7] = 0;
+            debugActive(false,"Could not retrieve chest# " + sqlnm + " data!!");
         }
         return ar;
     }
@@ -223,8 +230,6 @@ public class Database {
         int sqlz = chest[3];
         int sqltier = chest[4];
         int sqlfound = chest[5]; //0 = false; 1 = true;
-
-
 
         //Checks if the Coordinates are equal and if the Crate hasn't been found
         if(sqlx == x && sqly == y && sqlz == z){
@@ -255,10 +260,10 @@ public class Database {
                     PreparedStatement stmt = con.prepareStatement(sql3);
                     stmt.setInt(1, sqlnm);
                     stmt.executeUpdate();
-                    plugin.getLogger().info("Chest # " + sqlnm + ",Tier: " + sqltier + " was found by player: " + name + "");
+                    debugActive(false,"Chest # " + sqlnm + ",Tier: " + sqltier + " was found by player: " + name + "");
                 } catch (SQLException e) {
                     //e.printStackTrace();
-                    plugin.getLogger().info("Could not update chest found by: " + name + " !!");
+                    debugActive(false,"Could not update chest found by: " + name + " !!");
                 }
 
                 //Update current player number of chest found
@@ -274,16 +279,13 @@ public class Database {
                     stmt.setInt(6, newfive);
                     stmt.setString(7, name);
                     stmt.executeUpdate();
-                    plugin.getLogger().info("Updated player: " + name + " Chest data");
+                    debugActive(false,"Updated player: " + name + " Chest data");
                 } catch (SQLException e) {
                     //e.printStackTrace();
-                    plugin.getLogger().info("Could not update player: " + name + " Chest data!!");
+                    debugActive(false,"Could not update player: " + name + " Chest data!!");
                 }
-
             }
-
         }
-
     }
 
     public static int[] addPlayerChestCount(int tier, int tot, int one, int two, int three, int four, int five){
@@ -311,6 +313,23 @@ public class Database {
         return ar;
     }
 
+    public static void chestHasOpen(int num){
+
+        //Mark the chest as open
+        String sql = "UPDATE `chests` SET `opened` = '1' WHERE `number` = ?";
+
+        try {
+            PreparedStatement stmt = con.prepareStatement(sql);
+            stmt.setInt(1, num);
+            stmt.executeUpdate();
+            debugActive(false,"Chest # " + num + ", was opened");
+        } catch (SQLException e) {
+            //e.printStackTrace();
+            debugActive(false,"Could not update chest # " + num + " !!");
+        }
+
+    }
+
     public static void retrieveChest(){
 
         // Retrieve all chest coords and store it in an array
@@ -323,10 +342,10 @@ public class Database {
         try {
             PreparedStatement stmt = con.prepareStatement(sql);
             stmt.executeUpdate();
-            plugin.getLogger().info("Chests cleared from Database");
+            debugActive(false,"Chests cleared from Database");
         } catch (SQLException e) {
             //e.printStackTrace();
-            plugin.getLogger().info("Could not remove all the chests from the Database !!");
+            debugActive(false,"Could not remove all the chests from the Database !!");
         }
     }
 
@@ -340,10 +359,10 @@ public class Database {
             PreparedStatement stmt = con.prepareStatement(sql);
             stmt.setInt(1, num[0]);
             stmt.executeUpdate();
-            plugin.getLogger().info("Chest cleared from Database");
+            debugActive(false,"Chest cleared from Database");
         } catch (SQLException e) {
             //e.printStackTrace();
-            plugin.getLogger().info("Could not remove the chest from the Database !!");
+            debugActive(false,"Could not remove the chest from the Database !!");
         }
     }
 }

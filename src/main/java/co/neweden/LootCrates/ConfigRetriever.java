@@ -25,11 +25,13 @@ public class ConfigRetriever {
 
     //Other Stuff
     public static String WorldConfig;
+    public static boolean Debug;
     public static String FoundChest;
+    public static String FoundChest_NB;
     public static String BreakChest;
     public static int MaxCrates;
     public static double MaxSpawnTime;
-    public static String lootcrates = ChatColor.GRAY + "[" + ChatColor.GOLD + "LootCrates" + ChatColor.GRAY + "] ";
+    public static String lootcratesPrefix = ChatColor.GRAY + "[" + ChatColor.GOLD + "LootCrates" + ChatColor.GRAY + "] ";
 
     //Max Distance Allowed
     public static int max_x;
@@ -57,6 +59,7 @@ public class ConfigRetriever {
 
         //retrieving messages from the config
         FoundChest = plugin.getConfig().getString("Messages.Found-Chest");
+        FoundChest_NB = plugin.getConfig().getString("Messages.Found-Chest-NotBreak");
         BreakChest = plugin.getConfig().getString("Messages.Break-Chest");
 
         //MYSQL config
@@ -89,6 +92,7 @@ public class ConfigRetriever {
 
         //Other Stuff
         WorldConfig = plugin.getConfig().getString("Worlds");
+        Debug = plugin.getConfig().getBoolean("Debug");
         MaxCrates = plugin.getConfig().getInt("Crates.max-amount");
         MaxSpawnTime = plugin.getConfig().getDouble("Crates.max-spawned-time");
 

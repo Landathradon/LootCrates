@@ -5,7 +5,7 @@ import org.bukkit.block.Chest;
 import org.bukkit.inventory.Inventory;
 
 import static co.neweden.LootCrates.ConfigRetriever.MaxSpawnTime;
-import static co.neweden.LootCrates.listeners.PlayerListener.player;
+import static co.neweden.LootCrates.main.debugActive;
 
 public class Timer{
  private static main plugin;
@@ -16,33 +16,55 @@ public class Timer{
         plugin = pl;
     }
 
-    public static void OnCrateCreated(int num){
-        player.sendMessage("The crate is about to despawn in: "+ TimeSecs);
+    public static void OnCrateCreated(int num, boolean NotEmpty){
+        debugActive(false,"The crate is about to despawn in: " + TimeSecs  + " secs");
 
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            DespawnChest(num);
+            DespawnChest(num, NotEmpty);
         },GameTicks);
 
     }
+    public static void OnCrateCreated(int num, boolean NotEmpty,long timeWanted){
+        debugActive(false,"The crate is about to despawn in: " + (timeWanted/20) + " secs");
 
-    public static void DespawnChest(int num) {
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            DespawnChest(num, NotEmpty);
+        },timeWanted);
+
+    }
+
+    public static void DespawnChest(int num, boolean NotEmpty) {
         int[] chest = Database.getChestFromNum(num); //get chest locs from db
-        int x = chest[1];
-        int y = chest[2];
-        int z = chest[3];
-        int found = chest[5];
-
-        if(found == 0) {
-
+        if (chest[7] == 1) {
             World w = Bukkit.getWorld(ConfigRetriever.WorldConfig);
-            Location chestLoc = new Location(w, x, y, z);
-            Chest ch = (Chest) chestLoc.getBlock().getState();
-            Inventory ChestInv = ch.getInventory();
-            ChestInv.clear();
+            int x = chest[1];
+            int y = chest[2];
+            int z = chest[3];
+            int found = chest[5];
 
-            chestLoc.getBlock().setType(Material.AIR);
-            Database.removeChestEvent(x, y, z);
+            if (found == 0) {
+                //Normal Despawn
+                Location chestLoc = new Location(w, x, y, z);
+                Chest ch = (Chest) chestLoc.getBlock().getState();
+                Inventory ChestInv = ch.getInventory();
 
+                ChestInv.clear();
+
+                chestLoc.getBlock().setType(Material.AIR);
+                Database.removeChestEvent(x, y, z);
+
+            } else if (found == 1 && NotEmpty) {
+                //if chest has been opened and items were still inside
+                Location chestLoc = new Location(w, x, y, z);
+                Chest ch = (Chest) chestLoc.getBlock().getState();
+                Inventory ChestInv = ch.getInventory();
+
+                ChestInv.clear();
+
+                chestLoc.getBlock().setType(Material.AIR);
+                Database.removeChestEvent(x, y, z);
+
+            }
         }
     }
 
