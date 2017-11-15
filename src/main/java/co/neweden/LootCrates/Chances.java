@@ -1,7 +1,10 @@
 package co.neweden.LootCrates;
 
+import org.bukkit.*;
+
 import java.util.concurrent.ThreadLocalRandom;
 
+import static co.neweden.LootCrates.ChestSpawner.ensureChunkLoaded;
 import static co.neweden.LootCrates.ConfigRetriever.*;
 
 public class Chances {
@@ -47,4 +50,11 @@ public class Chances {
 
         return value;
     }
+
+    public static int getHighestBlockYAt(int x, int z) {
+        World w = Bukkit.getWorld(ConfigRetriever.WorldConfig);
+        ensureChunkLoaded(x,z,w);
+        return w.getHighestBlockYAt(x, z);
+    }
+
 }

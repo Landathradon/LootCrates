@@ -3,10 +3,13 @@
 
 Worlds: world
 
-#max-spawned-time is set in minutes
+#Debug is a boolean
+Debug: true
+
+#max-spawned-time is set in minutes and can be written in decimal like so : 5.57
 Crates:
    max-amount: 5
-   max-spawned-time: 0.5
+   max-spawned-time: 5.0
    max-x-distance: 5000
    min-x-distance: -5000
    max-z-distance: 5000
@@ -38,5 +41,6 @@ Items:
     - 'EMERALD_BLOCK'
 
 Messages:
-  Found-Chest: "Congratulations! You found a Loot Crate, these Crates are randomly generated, you can find more of them throughout the world!"
+  Found-Chest: "&2Congratulations! &fYou found a Loot Crate, these Crates are randomly generated, you can find more of them throughout the world!"
+  Found-Chest-NotBreak: "&2Congratulations! &fYou found a Loot Crate, these Crates are randomly generated, now that this one has been found you should take all of the contents you want as it will disappear in 5 minutes, you can find more of them throughout the world!"
   Break-Chest: "You cannot break this chest!"
