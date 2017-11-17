@@ -1,6 +1,5 @@
 package co.neweden.LootCrates;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 
