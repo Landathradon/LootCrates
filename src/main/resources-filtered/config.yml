@@ -3,13 +3,14 @@
 
 Worlds: world
 
-#Debug is a boolean
-Debug: true
+#Debug is a boolean | Debug Might be annoying, recommended on false
+Debug: false
 
 #max-spawned-time is set in minutes and can be written in decimal like so : 5.57
 Crates:
    max-amount: 5
-   max-spawned-time: 5.0
+   max-spawned-time: 20.0
+   min-spawned-time: 5.0
    max-x-distance: 5000
    min-x-distance: -5000
    max-z-distance: 5000
@@ -23,6 +24,7 @@ mysql:
    password: pass
 
 #Write items in caps
+# A list of Minecraft materials can be found here: https://pastebin.com/m5xtN2x6
 Items:
   One-Star:
     - 'LOG'

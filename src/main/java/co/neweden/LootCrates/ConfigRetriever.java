@@ -1,10 +1,14 @@
 package co.neweden.LootCrates;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static co.neweden.LootCrates.main.debugActive;
+import static co.neweden.LootCrates.main.disablePlugin;
 
 public class ConfigRetriever {
     private main plugin;
@@ -31,6 +35,7 @@ public class ConfigRetriever {
     public static String BreakChest;
     public static int MaxCrates;
     public static double MaxSpawnTime;
+    public static double MinSpawnTime;
     public static String lootcratesPrefix = ChatColor.GRAY + "[" + ChatColor.GOLD + "LootCrates" + ChatColor.GRAY + "] ";
 
     //Max Distance Allowed
@@ -95,6 +100,7 @@ public class ConfigRetriever {
         Debug = plugin.getConfig().getBoolean("Debug");
         MaxCrates = plugin.getConfig().getInt("Crates.max-amount");
         MaxSpawnTime = plugin.getConfig().getDouble("Crates.max-spawned-time");
+        MinSpawnTime = plugin.getConfig().getDouble("Crates.min-spawned-time");
 
         //Max Distance Allowed
         max_x = plugin.getConfig().getInt("Crates.max-x-distance");
@@ -102,4 +108,14 @@ public class ConfigRetriever {
         max_z = plugin.getConfig().getInt("Crates.max-z-distance");
         min_z = plugin.getConfig().getInt("Crates.min-z-distance");
     }
+
+    public static void checkMinAndMaxTimes(){
+
+        if(MinSpawnTime > MaxSpawnTime){
+            debugActive(true,"!!! Make sure the values in max-spawned-time and min-spawned-time are correct in the config !!!");
+            disablePlugin();
+        }
+
+    }
+
 }

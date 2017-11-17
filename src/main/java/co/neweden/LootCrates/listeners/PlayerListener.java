@@ -15,6 +15,8 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
 
+import static co.neweden.LootCrates.ChestSpawner.newChest;
+import static co.neweden.LootCrates.ChestSpawner.tierCalc;
 import static co.neweden.LootCrates.ConfigRetriever.*;
 import static co.neweden.LootCrates.Database.*;
 import static org.bukkit.ChatColor.translateAlternateColorCodes;
@@ -22,7 +24,7 @@ import static org.bukkit.ChatColor.translateAlternateColorCodes;
 
 public class PlayerListener implements Listener {
 
-    public static Player player;
+    private static Player player;
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onBlockBreak(BlockBreakEvent event) {
@@ -56,27 +58,36 @@ public class PlayerListener implements Listener {
                     chestIsFound(player.getDisplayName(),c.getX(),c.getY(),c.getZ());
                     int[] isFound = getChestFromNum(value[0]); //Checks if chest is found | have to be after its added to db so it can return true (1)
                     ItemStack[] items = event.getInventory().getContents();
+                    String tier1 = "";
+                    if(isFound[4] == 1){
+                        tier1 = ChatColor.WHITE + " | " + ChatColor.RED + "(╯°□°）╯︵ ┻━┻";
+                    }
+                    String message = ChatColor.GOLD + player.getDisplayName() + ChatColor.GRAY + " has found a " + ChatColor.YELLOW + tierCalc(isFound[4]) + ChatColor.GRAY + " Crate" + tier1;// + " in " + player.getWorld().getName();
 
                     for (ItemStack item : items) {
                         if (item != null) {
+                            //Checks if chest has already been opened so it wont display a message twice
                             if(isFound[6] == 0) {
                                 chestHasOpen(value[0]);
+                                Bukkit.broadcastMessage(message);
                                 String FoundChest_NB_Colored = translateAlternateColorCodes('&', FoundChest_NB);
                                 player.sendMessage(FoundChest_NB_Colored);
-                                Timer.OnCrateCreated(value[0], true,600); //6000=5min
+                                Timer.OnCrateCreated(value[0], true,600); //6000=5min, 600=30sec
                             }
                             return;
                         }
                     }
                     //Run code to execute if the chest is empty
-                    removeChestEvent(c.getX(),c.getY(),c.getZ());
+
                     //Checks if chest has already been opened so it wont display a message twice
                     if(isFound[6] == 0) {
+                        Bukkit.broadcastMessage(message);
                         String FoundChest_Colored = translateAlternateColorCodes('&', FoundChest);
                         player.sendMessage(FoundChest_Colored);
                     }
+                    removeChestEvent(c.getX(),c.getY(),c.getZ());
                     c.getLocation().getBlock().setType(Material.AIR);
-                    //Crates = Crates - 1;
+                    newChest(isFound[0]);
                 }
             }
         }

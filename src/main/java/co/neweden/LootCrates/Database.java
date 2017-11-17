@@ -3,32 +3,29 @@ package co.neweden.LootCrates;
 import java.sql.*;
 
 import static co.neweden.LootCrates.ConfigRetriever.*;
+import static co.neweden.LootCrates.Timer.DespawnChest;
 import static co.neweden.LootCrates.main.con;
 import static co.neweden.LootCrates.main.debugActive;
-import static co.neweden.LootCrates.main.plugin;
 
 
 public class Database {
 
-    public static Connection connection = null;
+    static Connection connection = null;
 
-    public static Connection getConnection() throws SQLException {
+    static Connection getConnection() throws SQLException {
 
         try{
             Class.forName("com.mysql.jdbc.Driver");
             connection = DriverManager.getConnection("jdbc:mysql://"+host+":"+port+"/"+database+"?autoReconnect=true", username, password);
 
-            }catch(SQLException se){
-                //se.printStackTrace();
-            debugActive(true,"Database connection failed!! Please verify your MYSQL Config !!");
-            }catch(Exception e){
+            } catch(Exception e){
                  //e.printStackTrace();
             debugActive(true,"Database connection failed!! Please verify your MYSQL Config !!");
             }
         return connection;
     }
 
-    public static void initDatabase(){
+    static void initDatabase(){
         String sql = "CREATE TABLE IF NOT EXISTS `loots` (\n" +
                 "    `name` VARCHAR(48) NOT NULL,\n" +
                 "    `total_amount` INT(10) UNSIGNED NOT NULL DEFAULT '0',\n" +
@@ -68,7 +65,7 @@ public class Database {
         }
     }
 
-    public static void addChestToDatabase(String w, int num, int x, int y, int z, int tier){
+    static void addChestToDatabase(String w, int num, int x, int y, int z, int tier){
 
         String sql = "INSERT INTO `chests` (`world`, `number`, `x`, `y`, `z`, `tier`, `found`) VALUES (?, ?, ?, ?, ?, ?, '0')";
 
@@ -107,7 +104,7 @@ public class Database {
 
     }
 
-    public static int[] getPlayerLoots(String name){
+    static int[] getPlayerLoots(String name){
 
         String sql = "SELECT * FROM `loots` WHERE `name`='" +  name + "'";
 
@@ -288,7 +285,7 @@ public class Database {
         }
     }
 
-    public static int[] addPlayerChestCount(int tier, int tot, int one, int two, int three, int four, int five){
+    static int[] addPlayerChestCount(int tier, int tot, int one, int two, int three, int four, int five){
 
         int caltot = tot;
         int calone = one;
@@ -330,13 +327,16 @@ public class Database {
 
     }
 
-    public static void retrieveChest(){
+    static void deleteChest(){
 
-        // Retrieve all chest coords and store it in an array
-
+        int count=0;
+        while (count <= MaxCrates) {
+            DespawnChest(count, false, true);
+            count++;
+        }
     }
 
-    public static void removeChests() {
+    static void removeChestsFromDb() {
         String sql = "TRUNCATE TABLE `chests`";
 
         try {

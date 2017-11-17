@@ -4,36 +4,34 @@ import org.bukkit.*;
 import org.bukkit.block.Chest;
 import org.bukkit.inventory.Inventory;
 
-import static co.neweden.LootCrates.ConfigRetriever.MaxSpawnTime;
+import static co.neweden.LootCrates.Chances.randomDespawnTime;
+import static co.neweden.LootCrates.ChestSpawner.newChest;
 import static co.neweden.LootCrates.main.debugActive;
 
 public class Timer{
  private static main plugin;
- public static long TimeSecs = (long)(MaxSpawnTime*60);
- public static long GameTicks = (long)(TimeSecs*20);
 
-    public Timer(main pl) {
+    Timer(main pl) {
         plugin = pl;
     }
 
-    public static void OnCrateCreated(int num, boolean NotEmpty){
-        debugActive(false,"The crate is about to despawn in: " + TimeSecs  + " secs");
+    static void OnCrateCreated(int num, boolean Empty){
+        long GameTicks = randomDespawnTime();
+        debugActive(false,"The crate is about to despawn in: " + (GameTicks/20)  + " secs");
 
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            DespawnChest(num, NotEmpty);
-        },GameTicks);
+        Bukkit.getScheduler().runTaskLater(plugin, () ->
+                DespawnChest(num, Empty, false),GameTicks);
 
     }
-    public static void OnCrateCreated(int num, boolean NotEmpty,long timeWanted){
+    public static void OnCrateCreated(int num, boolean Empty,long timeWanted){
         debugActive(false,"The crate is about to despawn in: " + (timeWanted/20) + " secs");
 
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            DespawnChest(num, NotEmpty);
-        },timeWanted);
+        Bukkit.getScheduler().runTaskLater(plugin, () ->
+                DespawnChest(num, Empty, false),timeWanted);
 
     }
 
-    public static void DespawnChest(int num, boolean NotEmpty) {
+    static void DespawnChest(int num, boolean Empty, boolean noRespawn) {
         int[] chest = Database.getChestFromNum(num); //get chest locs from db
         if (chest[7] == 1) {
             World w = Bukkit.getWorld(ConfigRetriever.WorldConfig);
@@ -47,23 +45,24 @@ public class Timer{
                 Location chestLoc = new Location(w, x, y, z);
                 Chest ch = (Chest) chestLoc.getBlock().getState();
                 Inventory ChestInv = ch.getInventory();
-
                 ChestInv.clear();
-
                 chestLoc.getBlock().setType(Material.AIR);
                 Database.removeChestEvent(x, y, z);
+                if(!noRespawn) {
+                    newChest(num);
+                }
 
-            } else if (found == 1 && NotEmpty) {
+            } else if (found == 1 && Empty) {
                 //if chest has been opened and items were still inside
                 Location chestLoc = new Location(w, x, y, z);
                 Chest ch = (Chest) chestLoc.getBlock().getState();
                 Inventory ChestInv = ch.getInventory();
-
                 ChestInv.clear();
-
                 chestLoc.getBlock().setType(Material.AIR);
                 Database.removeChestEvent(x, y, z);
-
+                if(!noRespawn) {
+                    newChest(num);
+                }
             }
         }
     }
