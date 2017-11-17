@@ -8,7 +8,7 @@ Debug: false
 
 #max-spawned-time is set in minutes and can be written in decimal like so : 5.57
 Crates:
-   max-amount: 5
+   max-amount: 20
    max-spawned-time: 20.0
    min-spawned-time: 5.0
    max-x-distance: 5000

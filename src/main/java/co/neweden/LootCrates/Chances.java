@@ -23,7 +23,7 @@ class Chances {
         return val;
     }
 
-    //calculate random spawn points for the chest | MUST IMPLEMENT LANDMANAGER FOR GOOD COORDS
+    //calculate random spawn points for the chest
     static int RandomLocationX() {
         return ThreadLocalRandom.current().nextInt(min_x, max_x);
     }

@@ -17,7 +17,7 @@ import static co.neweden.LootCrates.main.debugActive;
 public class ChestSpawner {
 
     private static int temp;
-    private static int Crates = 1;
+    public static int Crates = 1;
 
     //Spawn a chest with specified items and names
     private static void SpawnChest(int luck, int chNum){
@@ -122,7 +122,7 @@ public class ChestSpawner {
         if(!world.isChunkLoaded(chunk)) world.loadChunk(chunk);
     }
 
-    static void CreateChestOnStartup() {
+    public static void CreateChestOnStartup() {
 
         // Checks if we haven't spawned too many Crates
         while (Crates <= MaxCrates) {

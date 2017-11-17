@@ -10,7 +10,7 @@ import static co.neweden.LootCrates.main.debugActive;
 
 public class Database {
 
-    static Connection connection = null;
+    private static Connection connection = null;
 
     static Connection getConnection() throws SQLException {
 
@@ -58,7 +58,7 @@ public class Database {
         try {
             PreparedStatement stmt2 = con.prepareStatement(sql2);
             stmt2.executeUpdate();
-            debugActive(true,"Database init() Verified");
+            debugActive(false,"Database init() Verified");
         } catch (SQLException e) {
             //e.printStackTrace();
             debugActive(true,"Could not Create chests Table!! Please verify your MYSQL Config !!");
@@ -104,7 +104,7 @@ public class Database {
 
     }
 
-    static int[] getPlayerLoots(String name){
+    public static int[] getPlayerLoots(String name){
 
         String sql = "SELECT * FROM `loots` WHERE `name`='" +  name + "'";
 
@@ -138,7 +138,7 @@ public class Database {
                 ar[5] = sqlfive;
             }
         } catch (SQLException e1) {
-            e1.printStackTrace();
+            debugActive(false,"Could not find anything for this player: " + name);
         }
 
 
@@ -327,7 +327,7 @@ public class Database {
 
     }
 
-    static void deleteChest(){
+    public static void deleteChest(){
 
         int count=0;
         while (count <= MaxCrates) {
@@ -364,5 +364,22 @@ public class Database {
             //e.printStackTrace();
             debugActive(false,"Could not remove the chest from the Database !!");
         }
+    }
+
+    public static int getCurrentChestsCount(){
+        String sql = "SELECT COUNT(*) FROM `chests`";
+        int count = 0;
+        try {
+            Statement stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery(sql);
+            while (rs.next()) {
+                count = rs.getInt("COUNT(*)");
+            }
+
+        } catch (SQLException e) {
+            debugActive(false,"Could not retrieve current chest count from the Database !!");
+        }
+
+        return count;
     }
 }

@@ -2,7 +2,9 @@ package co.neweden.LootCrates;
 
 import co.neweden.LootCrates.listeners.PlayerListener;
 
+import co.neweden.LootCrates.listeners.commands;
 import org.bukkit.Bukkit;
+import org.bukkit.command.CommandExecutor;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
@@ -27,6 +29,12 @@ public class main extends JavaPlugin implements Listener {
             debugActive(true, "LootCrates is now running");
 
             saveDefaultConfig();
+            CommandExecutor cmd = new commands(this);
+            this.getCommand("PlayerCrates").setExecutor(cmd);
+            this.getCommand("DeleteCrates").setExecutor(cmd);
+            this.getCommand("CurrentCrates").setExecutor(cmd);
+            this.getCommand("RespawnCrates").setExecutor(cmd);
+
             registerEvents();
             ConfigRetriever cfr = new ConfigRetriever(this);
             Timer timer = new Timer(this);

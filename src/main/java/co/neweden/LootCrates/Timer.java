@@ -23,7 +23,7 @@ public class Timer{
                 DespawnChest(num, Empty, false),GameTicks);
 
     }
-    public static void OnCrateCreated(int num, boolean Empty,long timeWanted){
+    public static void OnCrateCreated(int num, boolean Empty, long timeWanted){
         debugActive(false,"The crate is about to despawn in: " + (timeWanted/20) + " secs");
 
         Bukkit.getScheduler().runTaskLater(plugin, () ->

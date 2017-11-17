@@ -72,7 +72,7 @@ public class PlayerListener implements Listener {
                                 Bukkit.broadcastMessage(message);
                                 String FoundChest_NB_Colored = translateAlternateColorCodes('&', FoundChest_NB);
                                 player.sendMessage(FoundChest_NB_Colored);
-                                Timer.OnCrateCreated(value[0], true,600); //6000=5min, 600=30sec
+                                Timer.OnCrateCreated(value[0], true,6000); //6000=5min, 600=30sec
                             }
                             return;
                         }
