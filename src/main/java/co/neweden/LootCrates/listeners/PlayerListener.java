@@ -72,7 +72,7 @@ public class PlayerListener implements Listener {
                                 Bukkit.broadcastMessage(message);
                                 String FoundChest_NB_Colored = translateAlternateColorCodes('&', FoundChest_NB);
                                 player.sendMessage(FoundChest_NB_Colored);
-                                Timer.OnCrateCreated(value[0], true,6000); //6000=5min, 600=30sec
+                                Timer.OnCrateCreated(value[0], 6000); //6000=5min, 600=30sec
                             }
                             return;
                         }
@@ -92,11 +92,12 @@ public class PlayerListener implements Listener {
             }
         }
     }
+
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event){
         Player player = event.getPlayer();
-        String pname= player.getDisplayName();
-        Database.initPlayerChestCount(pname);
+        String p_name= player.getDisplayName();
+        Database.initPlayerChestCount(p_name);
     }
 
 }

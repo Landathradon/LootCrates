@@ -3,8 +3,9 @@
 
 Worlds: world
 
-#Debug is a boolean | Debug Might be annoying, recommended on false
+#Debug & Enabled are booleans | Debug Might be annoying, recommended on false
 Debug: false
+Enable-Plugin: true
 
 #max-spawned-time is set in minutes and can be written in decimal like so : 5.57
 Crates:
@@ -20,27 +21,42 @@ mysql:
    host: localhost
    port: 3306
    database: lootcrates
-   user: user
+   username: user
    password: pass
 
 #Write items in caps
 # A list of Minecraft materials can be found here: https://pastebin.com/m5xtN2x6
 Items:
   One-Star:
+    Items:
     - 'LOG'
     - 'WOOD_AXE'
+    Max-Item: 3
+    Min-Item: 1
   Two-Star:
+    Items:
     - 'IRON_ORE'
     - 'IRON_AXE'
+    Max-Item: 3
+    Min-Item: 1
   Three-Star:
+    Items:
     - 'DIAMOND'
     - 'DIAMOND_AXE'
+    Max-Item: 4
+    Min-Item: 1
   Four-Star:
+    Items:
     - 'BEACON'
     - 'EMERALD'
+    Max-Item: 4
+    Min-Item: 1
   Five-Star:
+    Items:
     - 'NETHER_STAR'
     - 'EMERALD_BLOCK'
+    Max-Item: 5
+    Min-Item: 1
 
 Messages:
   Found-Chest: "&2Congratulations! &fYou found a Loot Crate, these Crates are randomly generated, you can find more of them throughout the world!"

@@ -6,73 +6,56 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import static co.neweden.LootCrates.Chances.getHighestBlockYAt;
-import static co.neweden.LootCrates.Chances.getRealCoords;
-import static co.neweden.LootCrates.Chances.getSizeArrayList;
-import static co.neweden.LootCrates.ConfigRetriever.MaxCrates;
-import static co.neweden.LootCrates.ConfigRetriever.OneStar;
+import static co.neweden.LootCrates.Chances.*;
+import static co.neweden.LootCrates.ConfigRetriever.*;
+import static co.neweden.LootCrates.Database.chestNumberReturn;
+import static co.neweden.LootCrates.Timer.DespawnChest;
 import static co.neweden.LootCrates.main.debugActive;
 
 
 public class ChestSpawner {
 
-    private static int temp;
     public static int Crates = 1;
 
     //Spawn a chest with specified items and names
     private static void SpawnChest(int luck, int chNum){
         String ChestName = "Chest";
-        Material ItemReceived = Material.AIR;
-        int tier = 1;
         int ItemAmount = 0;
         //One Star loot config Setup
         if (luck == 1){
             ChestName = "Special Loot ☆";
-            temp = getSizeArrayList(OneStar);
-            ItemReceived = ConfigRetriever.OneStar.get(temp);
-            tier = 1;
-            ItemAmount = 1;
+            ItemAmount = getRandomAmountItems(1);
         }
         //Two Star loot config Setup
         if (luck == 2){
             ChestName = "Special Loot ☆☆";
-            ItemReceived = ConfigRetriever.TwoStar.get(temp);
-            tier = 2;
-            ItemAmount = 1;
+            ItemAmount = getRandomAmountItems(2);
         }
         //Three Star loot config Setup
         if (luck == 3){
             ChestName = "Special Rare Loot ☆☆☆";
-            ItemReceived = ConfigRetriever.ThreeStar.get(temp);
-            tier = 3;
-            ItemAmount = 1;
+            ItemAmount = getRandomAmountItems(3);
         }
         //Four Star loot config Setup
         if (luck == 4){
             ChestName = "Special Rare Loot ☆☆☆☆";
-            ItemReceived = ConfigRetriever.FourStar.get(temp);
-            tier = 4;
-            ItemAmount = 2;
+            ItemAmount = getRandomAmountItems(4);
         }
         //Five Star loot config Setup
         if (luck == 5){
             ChestName = "Special Super Rare Loot ☆☆☆☆☆";
-            ItemReceived = ConfigRetriever.FiveStar.get(temp);
-            tier = 5;
-            ItemAmount = 3;
+            ItemAmount = getRandomAmountItems(5);
         }
-
-        checkBelowChestAndPlace(ChestName,ItemReceived,tier,ItemAmount, luck, chNum);
-
-
+        checkBelowChestAndPlace(ChestName,ItemAmount, luck, chNum);
     }
 
-    private static void checkBelowChestAndPlace(String ChestName, Material ItemReceived, int tier, int ItemAmount, int luck, int chNum){
+    private static void checkBelowChestAndPlace(String ChestName, int ItemAmount, int tier, int chNum){
 
         //Checks if there is no water or lava below chest
         World w = Bukkit.getWorld(ConfigRetriever.WorldConfig);
         int retry = 0;
         int retryLimit = 50;
+        int chestItemInt = 0;
         while (retry < retryLimit) { // We don't want this running indefinitely
 
             int x = Chances.RandomLocationX();
@@ -82,28 +65,42 @@ public class ChestSpawner {
 
                 Location chestLoc = new Location(w, x, y, z);
                 Material belowBlock = new Location(chestLoc.getWorld(), chestLoc.getX(), chestLoc.getY() - 1, chestLoc.getZ()).getBlock().getType();
-                if (
-                    //Items you dont want the chest to spawn on
+                //Making sure there is not another chest next to it
+                Material side1 = new Location(chestLoc.getWorld(), chestLoc.getX() + 1, chestLoc.getY(), chestLoc.getZ()).getBlock().getType();
+                Material side2 = new Location(chestLoc.getWorld(), chestLoc.getX() - 1, chestLoc.getY(), chestLoc.getZ()).getBlock().getType();
+                Material side3 = new Location(chestLoc.getWorld(), chestLoc.getX(), chestLoc.getY(), chestLoc.getZ() + 1).getBlock().getType();
+                Material side4 = new Location(chestLoc.getWorld(), chestLoc.getX(), chestLoc.getY(), chestLoc.getZ() - 1).getBlock().getType();
+                if (//Items you don't want the chest to spawn on OR near
                         !belowBlock.equals(Material.WATER) &&
-                                !belowBlock.equals(Material.STATIONARY_WATER) &&
-                                !belowBlock.equals(Material.LAVA) &&
-                                !belowBlock.equals(Material.STATIONARY_LAVA) &&
-                                !belowBlock.equals(Material.LEAVES) &&
-                                !belowBlock.equals(Material.LEAVES_2)
-                        ) {
-                    chestLoc.getBlock().setType(Material.CHEST);
-                    Chest chest = (Chest) chestLoc.getBlock().getState();
-                    chest.setCustomName(ChatColor.GREEN + ChestName);
-                    Inventory ChestInv = chest.getInventory();
-                    ItemStack ds = new ItemStack(ItemReceived, ItemAmount);
-                    ItemMeta dm = ds.getItemMeta();
-                    ds.setItemMeta(dm);
-                    ChestInv.setItem(Chances.ChestInvSlotRm(), ds);
+                        !belowBlock.equals(Material.STATIONARY_WATER) &&
+                        !belowBlock.equals(Material.LAVA) &&
+                        !belowBlock.equals(Material.STATIONARY_LAVA) &&
+                        !belowBlock.equals(Material.LEAVES) &&
+                        !belowBlock.equals(Material.LEAVES_2) &&
+                        !side1.equals(Material.CHEST) &&
+                        !side2.equals(Material.CHEST) &&
+                        !side3.equals(Material.CHEST) &&
+                        !side4.equals(Material.CHEST))
+                {
+                    int[] isFound = chestNumberReturn(x, y, z);
+                    if (isFound[1] == 0) {
+                        chestLoc.getBlock().setType(Material.CHEST);
+                        Chest chest = (Chest) chestLoc.getBlock().getState();
+                        chest.setCustomName(ChatColor.GREEN + ChestName);
+                        Inventory ChestInv = chest.getInventory();
 
-                    Database.addChestToDatabase(chestLoc.getWorld().getName(), chNum, x, y, z, luck);
-
-                    debugActive(false, "A Special Chest " + tier + " has spawned | Try: " + retry);
-                    Timer.OnCrateCreated(chNum, false);
+                        while (chestItemInt < ItemAmount) {
+                            Material ItemReceived = randomItems(tier);
+                            ItemStack ds = new ItemStack(ItemReceived, 1);
+                            ItemMeta dm = ds.getItemMeta();
+                            ds.setItemMeta(dm);
+                            ChestInv.setItem(ChestInvSlotRm(ChestInv), ds);
+                            chestItemInt++;
+                        }
+                        Database.addChestToDatabase(chestLoc.getWorld().getName(), chNum, x, y, z, tier);
+                        debugActive(false, "A Special Chest " + tier + " has spawned | Try: " + retry);
+                        Timer.OnCrateCreated(chNum);
+                    }
                     return;
                 } else {
                     retry++;
@@ -116,8 +113,8 @@ public class ChestSpawner {
 
     //Make sure the target is loaded, if not, load it
     static void ensureChunkLoaded(int x, int z, World world) {
-        Location randlocation = new Location(world, Double.parseDouble(Integer.toString(x)), 0.0, Double.parseDouble(Integer.toString(z)));
-        Chunk chunk = world.getChunkAt(randlocation);
+        Location rand_location = new Location(world, Double.parseDouble(Integer.toString(x)), 0.0, Double.parseDouble(Integer.toString(z)));
+        Chunk chunk = world.getChunkAt(rand_location);
         //To check if loaded and if not load
         if(!world.isChunkLoaded(chunk)) world.loadChunk(chunk);
     }
@@ -130,6 +127,7 @@ public class ChestSpawner {
             newChest(Crates);
 
         }
+        debugActive(true,(Crates-1) + " Crates have been spawned");
     }
 
     public static void newChest(int chNum){
@@ -195,5 +193,14 @@ public class ChestSpawner {
         }
 
         return value;
+    }
+
+    public static int count = 1;
+    public static void deleteChest(){
+
+        while (count <= MaxCrates) {
+            DespawnChest(count, true);
+            count++;
+        }
     }
 }

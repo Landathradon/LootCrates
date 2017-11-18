@@ -7,28 +7,18 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 
 import static co.neweden.LootCrates.ChestSpawner.*;
 import static co.neweden.LootCrates.Database.*;
 
 public class commands implements CommandExecutor {
-    private final Plugin plugin;
-    public commands(main pl) {
-        this.plugin = pl;
+    public commands(@SuppressWarnings("unused") main pl) {
     }
 
-    //return all chest count that a player have *member+
-
-    //delete all chests in the world *admin+
-
-    //return amount of chest currently in world *admin+
-
-    //respawn chests *admin+ (delete current + replace new)
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        String playermsg = "You must be a player to execute this command!";
-        String playerperm = "You do not have the permission to use this";
+        String player_msg = "You must be a player to execute this command!";
+        String player_perm = "You do not have the permission to use this";
         if (sender instanceof Player) {
             Player player = (Player) sender;
             if (cmd.getName().equalsIgnoreCase("PlayerCrates")) {
@@ -41,7 +31,7 @@ public class commands implements CommandExecutor {
                                 " | Four Star: " + ChatColor.YELLOW + ar[4] + ChatColor.WHITE + "\nFive Star: " + ChatColor.YELLOW + ar[5]);
                         return true;
                     } else {
-                        sender.sendMessage(playerperm);
+                        sender.sendMessage(player_perm);
                         return false;
                     }
                 }
@@ -49,22 +39,22 @@ public class commands implements CommandExecutor {
             else if (cmd.getName().equalsIgnoreCase("DeleteCrates")) {
                 if (player.hasPermission("lootcrates.delete")) {
                     Bukkit.getScheduler().cancelAllTasks();
+                    count = 1;
                     deleteChest();
-                    sender.sendMessage(ChatColor.GREEN + "All Chests have been" + ChatColor.RED + "deleted");
+                    sender.sendMessage(ChatColor.GREEN + "All " + ChatColor.YELLOW + (count-1) + ChatColor.GREEN + " crates have been" + ChatColor.RED + " deleted");
                     return true;
                 } else {
-                    sender.sendMessage(playerperm);
+                    sender.sendMessage(player_perm);
                     return false;
                 }
 
             }
             else if (cmd.getName().equalsIgnoreCase("CurrentCrates")) {
                 if (player.hasPermission("lootcrates.current")) {
-                    int val = getCurrentChestsCount();
-                    sender.sendMessage("There is currently " + ChatColor.YELLOW + val + ChatColor.WHITE + " crates in the world");
+                    sender.sendMessage("There is currently " + ChatColor.YELLOW + getCurrentChestsCount() + ChatColor.WHITE + " crates in the world");
                     return true;
                 } else {
-                    sender.sendMessage(playerperm);
+                    sender.sendMessage(player_perm);
                     return false;
                 }
             }
@@ -72,21 +62,24 @@ public class commands implements CommandExecutor {
                 if (player.hasPermission("lootcrates.respawn")) {
                     Bukkit.getScheduler().cancelAllTasks();
                     //need to check if crates exists in db
-                    int val = getCurrentChestsCount();
                     Crates = 1;
-                    if (val != 0) {
+                    if (getCurrentChestsCount() > 0) {
+                        count = 1;
                         deleteChest();
+                        CreateChestOnStartup();
                     }
-                    CreateChestOnStartup();
-                    sender.sendMessage(ChatColor.GREEN + "Every Crates have respawned");
+                    else if(getCurrentChestsCount() == 0) {
+                        CreateChestOnStartup();
+                    }
+                    sender.sendMessage(ChatColor.GREEN + "Every crates have respawn");
                     return true;
                 } else {
-                    sender.sendMessage(playerperm);
+                    sender.sendMessage(player_perm);
                     return false;
                 }
             }
         } else {
-            sender.sendMessage(playermsg);
+            sender.sendMessage(player_msg);
             return false;
         }
         return false;

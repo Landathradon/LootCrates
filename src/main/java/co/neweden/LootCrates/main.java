@@ -13,31 +13,39 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import static co.neweden.LootCrates.ChestSpawner.CreateChestOnStartup;
+import static co.neweden.LootCrates.ChestSpawner.*;
 import static co.neweden.LootCrates.ConfigRetriever.*;
 import static co.neweden.LootCrates.Database.*;
 
 public class main extends JavaPlugin implements Listener {
-        private static Plugin plugin;
-        static Connection con;
-        private static boolean Disabled;
+    private static Plugin plugin;
+    static Connection con;
+    private static boolean Disabled;
 
-        // When the plugin load/unload
-        @Override
-        public void onEnable() {
-            plugin = this;
-            debugActive(true, "LootCrates is now running");
+    // When the plugin load/unload
+    @Override
+    public void onEnable() {
+        plugin = this;
+        debugActive(true, "LootCrates is now running");
 
-            saveDefaultConfig();
-            CommandExecutor cmd = new commands(this);
-            this.getCommand("PlayerCrates").setExecutor(cmd);
-            this.getCommand("DeleteCrates").setExecutor(cmd);
-            this.getCommand("CurrentCrates").setExecutor(cmd);
-            this.getCommand("RespawnCrates").setExecutor(cmd);
+        CommandExecutor cmd = new commands(this);
+        this.getCommand("PlayerCrates").setExecutor(cmd);
+        this.getCommand("DeleteCrates").setExecutor(cmd);
+        this.getCommand("CurrentCrates").setExecutor(cmd);
+        this.getCommand("RespawnCrates").setExecutor(cmd);
 
-            registerEvents();
-            ConfigRetriever cfr = new ConfigRetriever(this);
-            Timer timer = new Timer(this);
+        //noinspection unused
+        ConfigRetriever cfr = new ConfigRetriever(this);
+        checkConfig(1);
+        if (!Disabled) {
+            startup();
+        }
+    }
+
+    private void startup(){
+        saveDefaultConfig();
+        registerEvents();
+        @SuppressWarnings("unused") Timer timer = new Timer(this);
 
             try {
                 con = getConnection();
@@ -46,18 +54,18 @@ public class main extends JavaPlugin implements Listener {
             }
 
             initDatabase();
-            checkMinAndMaxTimes();
-            if(!Disabled) {
-                CreateChestOnStartup(); //Spawns chest when server starts
-            }
-        }
+            CreateChestOnStartup(); //Spawns chest when server starts
+    }
 
-        @Override
-        public void onDisable() {
-            Bukkit.getScheduler().cancelAllTasks();
-
+    @Override
+    public void onDisable() {
+        Bukkit.getScheduler().cancelAllTasks();
+        checkConfig(0);
+        if (!Disabled) {
+            count = 1;
             deleteChest();//remove all chests from the database and delete them
-            removeChestsFromDb();//for now it will delete everything
+            debugActive(true, (count-1) + " Crates have been deleted");
+            removeChestsFromDb();//for now it will delete everything | Might be useless after few modifications
 
             try {
                 con.close();
@@ -65,33 +73,27 @@ public class main extends JavaPlugin implements Listener {
             } catch (SQLException e) {
                 debugActive(true, "Database Connection could not stop!!");
             }
-            debugActive(true, "LootCrates has now stopped");
-
         }
+        debugActive(true, "LootCrates has now stopped");
+    }
 
-        private void registerEvents() {
-            PluginManager pm = getServer().getPluginManager();
+    private void registerEvents() {
+        PluginManager pm = getServer().getPluginManager();
+        pm.registerEvents(new PlayerListener(), this);
+    }
 
-            pm.registerEvents(new PlayerListener(), this);
+    //Checks if Debug is active in the config
+    static void debugActive(Boolean important, String msg) {
+        if (important) {
+            plugin.getLogger().info(msg);
+        } else //noinspection ConstantConditions
+            if (Debug && !important) {
+            plugin.getLogger().info(msg);
         }
+    }
 
-        //Checks if Debug is active in the config
-        static void debugActive(Boolean important, String msg){
-            if(important){
-
-                plugin.getLogger().info(msg);
-
-            }
-            else if(Debug && !important){
-
-                plugin.getLogger().info(msg);
-
-            }
-        }
-
-    static void disablePlugin(){
-
-            Bukkit.getPluginManager().disablePlugin(main.plugin);
-            Disabled = true;
-        }
+    static void disablePlugin() {
+        Bukkit.getPluginManager().disablePlugin(main.plugin);
+        Disabled = true;
+    }
 }

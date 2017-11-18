@@ -3,7 +3,6 @@ package co.neweden.LootCrates;
 import java.sql.*;
 
 import static co.neweden.LootCrates.ConfigRetriever.*;
-import static co.neweden.LootCrates.Timer.DespawnChest;
 import static co.neweden.LootCrates.main.con;
 import static co.neweden.LootCrates.main.debugActive;
 
@@ -78,13 +77,11 @@ public class Database {
             stmt.setInt(5, z);
             stmt.setInt(6, tier);
             stmt.executeUpdate();
-            debugActive(false,"Chest #" + num + " Added to Database");
+            debugActive(false,"Crate #" + num + " Added to Database");
         } catch (SQLException e) {
             //e.printStackTrace();
-            debugActive(false,"Chest #" + num + " Could not be added !!");
+            debugActive(false,"Crate #" + num + " Could not be added !!");
         }
-
-
     }
 
     public static void initPlayerChestCount(String name){
@@ -140,18 +137,15 @@ public class Database {
         } catch (SQLException e1) {
             debugActive(false,"Could not find anything for this player: " + name);
         }
-
-
         return ar;
-
     }
 
     public static int[] chestNumberReturn(int x, int y, int z){
 
-            int sqlnm = 0;
+            int sql_nm;
             int ar[] = new int[2];
 
-            String sql = "SELECT number FROM chests WHERE (`x` = '" + x + "' AND `y` = '" + y + "' AND `z` = '" + z + "') GROUP BY number HAVING COUNT(DISTINCT x)=1";
+            String sql = "SELECT number FROM chests WHERE (`x` = '" + x + "' AND `y` = '" + y + "' AND `z` = '" + z + "') GROUP BY number";
 
             try {
                 Statement stmt = con.createStatement();
@@ -159,31 +153,28 @@ public class Database {
 
                 // iterate through the java resultset
                 while (rs.next()) {
-                    sqlnm = rs.getInt("number");
+                    sql_nm = rs.getInt("number");
 
-                    ar[0] = sqlnm;
+                    ar[0] = sql_nm;
                     ar[1] = 1;
                 }
             } catch (SQLException e1) {
                 ar[1] = 0;
-                debugActive(false,"Reported Chest was not found");
+                //debugActive(false,"Reported Chest was not found");
             }
-
             return ar;
-
     }
 
     public static int[] getChestFromNum(int num){
         int ar[] = new int[8];
-        int sqlnm = num;
-        int sqlx;
-        int sqly;
-        int sqlz;
-        int sqltier;
-        int sqlfound; //0 = false; 1 = true;
-        int sqlopened; //0 = false; 1 = true;
+        int sql_x;
+        int sql_y;
+        int sql_z;
+        int sql_tier;
+        int sql_found; //0 = false; 1 = true;
+        int sql_opened; //0 = false; 1 = true;
 
-        String sql2 = "SELECT * FROM `chests` WHERE `number` = '" + sqlnm + "'";
+        String sql2 = "SELECT * FROM `chests` WHERE `number` = '" + num + "'";
 
         try {
             Statement stmt = con.createStatement();
@@ -192,27 +183,27 @@ public class Database {
             // iterate through the java resultset
             while (rs.next()) {
 
-                sqlx = rs.getInt("x");
-                sqly = rs.getInt("y");
-                sqlz = rs.getInt("z");
-                sqltier = rs.getInt("tier");
-                sqlfound = rs.getInt("found");
-                sqlopened = rs.getInt("opened");
+                sql_x = rs.getInt("x");
+                sql_y = rs.getInt("y");
+                sql_z = rs.getInt("z");
+                sql_tier = rs.getInt("tier");
+                sql_found = rs.getInt("found");
+                sql_opened = rs.getInt("opened");
 
-                ar[0] = sqlnm;
-                ar[1] = sqlx;
-                ar[2] = sqly;
-                ar[3] = sqlz;
-                ar[4] = sqltier;
-                ar[5] = sqlfound;
-                ar[6] = sqlopened;
+                ar[0] = num;
+                ar[1] = sql_x;
+                ar[2] = sql_y;
+                ar[3] = sql_z;
+                ar[4] = sql_tier;
+                ar[5] = sql_found;
+                ar[6] = sql_opened;
                 ar[7] = 1;
 
             }
         } catch (SQLException e1) {
             e1.printStackTrace();
             ar[7] = 0;
-            debugActive(false,"Could not retrieve chest# " + sqlnm + " data!!");
+            debugActive(false,"Could not retrieve crate # " + num + " data!!");
         }
         return ar;
     }
@@ -220,17 +211,17 @@ public class Database {
     public static void chestIsFound(String name, int x, int y, int z){
 
         int[] value = chestNumberReturn(x, y, z);
-        int sqlnm = value[0];
-        int[] chest = getChestFromNum(sqlnm);
-        int sqlx = chest[1];
-        int sqly = chest[2];
-        int sqlz = chest[3];
-        int sqltier = chest[4];
-        int sqlfound = chest[5]; //0 = false; 1 = true;
+        int sql_nm = value[0];
+        int[] chest = getChestFromNum(sql_nm);
+        int sql_x = chest[1];
+        int sql_y = chest[2];
+        int sql_z = chest[3];
+        int sql_tier = chest[4];
+        int sql_found = chest[5]; //0 = false; 1 = true;
 
         //Checks if the Coordinates are equal and if the Crate hasn't been found
-        if(sqlx == x && sqly == y && sqlz == z){
-            if(sqlfound == 0){
+        if(sql_x == x && sql_y == y && sql_z == z){
+            if(sql_found == 0){
 
                 int ar[] = getPlayerLoots(name);
 
@@ -241,26 +232,26 @@ public class Database {
                 int four_star = ar[4];
                 int five_star = ar[5];
 
-                int ar2[] = addPlayerChestCount(sqltier,total,one_star,two_star,three_star,four_star,five_star);
+                int ar2[] = addPlayerChestCount(sql_tier,total,one_star,two_star,three_star,four_star,five_star);
 
-                int newtot = ar2[0];
-                int newone = ar2[1];
-                int newtwo = ar2[2];
-                int newthree = ar2[3];
-                int newfour = ar2[4];
-                int newfive = ar2[5];
+                int new_tot = ar2[0];
+                int new_one = ar2[1];
+                int new_two = ar2[2];
+                int new_three = ar2[3];
+                int new_four = ar2[4];
+                int new_five = ar2[5];
 
                 //Mark the chest as found
                 String sql3 = "UPDATE `chests` SET `found` = '1' WHERE `number` = ?";
 
                 try {
                     PreparedStatement stmt = con.prepareStatement(sql3);
-                    stmt.setInt(1, sqlnm);
+                    stmt.setInt(1, sql_nm);
                     stmt.executeUpdate();
-                    debugActive(false,"Chest # " + sqlnm + ",Tier: " + sqltier + " was found by player: " + name + "");
+                    debugActive(false,"Crate # " + sql_nm + ",Tier: " + sql_tier + " was found by player: " + name + "");
                 } catch (SQLException e) {
                     //e.printStackTrace();
-                    debugActive(false,"Could not update chest found by: " + name + " !!");
+                    debugActive(false,"Could not update crate found by: " + name + " !!");
                 }
 
                 //Update current player number of chest found
@@ -268,45 +259,45 @@ public class Database {
 
                 try {
                     PreparedStatement stmt = con.prepareStatement(sql4);
-                    stmt.setInt(1, newtot);
-                    stmt.setInt(2, newone);
-                    stmt.setInt(3, newtwo);
-                    stmt.setInt(4, newthree);
-                    stmt.setInt(5, newfour);
-                    stmt.setInt(6, newfive);
+                    stmt.setInt(1, new_tot);
+                    stmt.setInt(2, new_one);
+                    stmt.setInt(3, new_two);
+                    stmt.setInt(4, new_three);
+                    stmt.setInt(5, new_four);
+                    stmt.setInt(6, new_five);
                     stmt.setString(7, name);
                     stmt.executeUpdate();
-                    debugActive(false,"Updated player: " + name + " Chest data");
+                    debugActive(false,"Updated player: " + name + " Crate data");
                 } catch (SQLException e) {
                     //e.printStackTrace();
-                    debugActive(false,"Could not update player: " + name + " Chest data!!");
+                    debugActive(false,"Could not update player: " + name + " Crate data!!");
                 }
             }
         }
     }
 
-    static int[] addPlayerChestCount(int tier, int tot, int one, int two, int three, int four, int five){
+    private static int[] addPlayerChestCount(int tier, int tot, int one, int two, int three, int four, int five){
 
-        int caltot = tot;
-        int calone = one;
-        int caltwo = two;
-        int calthree = three;
-        int calfour = four;
-        int calfive = five;
+        int cal_tot = tot;
+        int cal_one = one;
+        int cal_two = two;
+        int cal_three = three;
+        int cal_four = four;
+        int cal_five = five;
 
-        if(tier == 1){caltot++;calone = one + 1;}
-        if(tier == 2){caltot++;caltwo = two + 1;}
-        if(tier == 3){caltot++;calthree = three + 1;}
-        if(tier == 4){caltot++;calfour = four + 1;}
-        if(tier == 5){caltot++;calfive = five + 1;}
+        if(tier == 1){cal_tot++;cal_one = one + 1;}
+        if(tier == 2){cal_tot++;cal_two = two + 1;}
+        if(tier == 3){cal_tot++;cal_three = three + 1;}
+        if(tier == 4){cal_tot++;cal_four = four + 1;}
+        if(tier == 5){cal_tot++;cal_five = five + 1;}
 
         int ar[] = new int[6];
-        ar[0] = caltot;
-        ar[1] = calone;
-        ar[2] = caltwo;
-        ar[3] = calthree;
-        ar[4] = calfour;
-        ar[5] = calfive;
+        ar[0] = cal_tot;
+        ar[1] = cal_one;
+        ar[2] = cal_two;
+        ar[3] = cal_three;
+        ar[4] = cal_four;
+        ar[5] = cal_five;
         return ar;
     }
 
@@ -319,20 +310,10 @@ public class Database {
             PreparedStatement stmt = con.prepareStatement(sql);
             stmt.setInt(1, num);
             stmt.executeUpdate();
-            debugActive(false,"Chest # " + num + ", was opened");
+            debugActive(false,"Crate # " + num + ", was opened");
         } catch (SQLException e) {
             //e.printStackTrace();
-            debugActive(false,"Could not update chest # " + num + " !!");
-        }
-
-    }
-
-    public static void deleteChest(){
-
-        int count=0;
-        while (count <= MaxCrates) {
-            DespawnChest(count, false, true);
-            count++;
+            debugActive(false,"Could not update crate # " + num + " !!");
         }
     }
 
@@ -342,27 +323,26 @@ public class Database {
         try {
             PreparedStatement stmt = con.prepareStatement(sql);
             stmt.executeUpdate();
-            debugActive(false,"Chests cleared from Database");
+            debugActive(false,"Crates cleared from Database");
         } catch (SQLException e) {
             //e.printStackTrace();
-            debugActive(false,"Could not remove all the chests from the Database !!");
+            debugActive(false,"Could not remove all the crates from the Database !!");
         }
     }
 
     public static void removeChestEvent(int x, int y, int z) {
 
-       int[] num = chestNumberReturn(x, y, z);
-
+        int[] num = chestNumberReturn(x, y, z);
         String sql = "DELETE FROM `chests` WHERE number = ?";
 
         try {
             PreparedStatement stmt = con.prepareStatement(sql);
             stmt.setInt(1, num[0]);
             stmt.executeUpdate();
-            debugActive(false,"Chest cleared from Database");
+            debugActive(false, "Crate removed from Database");
         } catch (SQLException e) {
             //e.printStackTrace();
-            debugActive(false,"Could not remove the chest from the Database !!");
+            debugActive(false, "Could not remove the crates from the Database !!");
         }
     }
 
@@ -375,11 +355,10 @@ public class Database {
             while (rs.next()) {
                 count = rs.getInt("COUNT(*)");
             }
-
+            return count;
         } catch (SQLException e) {
-            debugActive(false,"Could not retrieve current chest count from the Database !!");
+            debugActive(false,"Could not retrieve current crates count from the Database !!");
+            return count;
         }
-
-        return count;
     }
 }
