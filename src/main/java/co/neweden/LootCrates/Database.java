@@ -169,7 +169,7 @@ public class Database {
                     chNum.value = 1;
                 }
             } catch (SQLException e) {
-                chNum.value = 1;
+                chNum.value = 0;
                 debugActive(false,"Reported Chest was not found", null);
             }
             return chNum;
