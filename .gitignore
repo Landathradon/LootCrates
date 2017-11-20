@@ -38,10 +38,6 @@ export.jardesc
 
 # IntelliJ
 .idea
-*.iml
-compiler.xml
-encodings.xml
-misc.xml
 /target/
-src/main/resources/
 src/test/
+META-INF

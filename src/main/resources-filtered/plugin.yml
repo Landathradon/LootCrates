@@ -1,39 +1,58 @@
 name: ${artifactId}
 version: ${version}
-main: co.neweden.LootCrates.main
+main: co.neweden.LootCrates.Main
 author: armadyl010
 description: Spawns random Loot Crates in the world
 website: https://neweden.co
 softdepend: [LandManager]
 commands:
-  PlayerCrates:
+  LootCrates:
+    description: Commands to manage Your Crates
+    aliases: [LC]
+    usage:
+      /lootcrates player [player]
+      /lootcrates delete
+      /lootcrates current
+      /lootcrates respawn
+      /lootcrates reload
+  LootCrates Player:
+    aliases: [LootCrates P]
     description: This will show current player chest count or specified
     usage: /<command> [player]
     permission: lootcrates.player
     permission-message: You don't have <permission>
-  DeleteCrates:
+  LootCrates Delete:
+    aliases: [LootCrates Del]
     description: This will delete all current spawned chests
     usage: /<command>
     permission: lootcrates.delete
     permission-message: You don't have <permission>
-  CurrentCrates:
+  LootCrates Current:
+    aliases: [LootCrates Cur]
     description: This will show all current chests spawned in the world
     usage: /<command>
     permission: lootcrates.current
     permission-message: You don't have <permission>
-  RespawnCrates:
+  LootCrates Respawn:
     description: This will respawn all the chests currently spawned
+    usage: /<command>
+    permission: lootcrates.respawn
+    permission-message: You don't have <permission>
+  LootCrates Reload:
+    aliases: [LootCrates RL]
+    description: This will reload the config
     usage: /<command>
     permission: lootcrates.respawn
     permission-message: You don't have <permission>
 permissions:
   lootcrates.*:
-    description: Gives access to all LootCrates commands
+    description: Gives access to all LootCrates Commands
     children:
       lootcrates.player: true
       lootcrates.delete: true
       lootcrates.current: true
       lootcrates.respawn: true
+      lootcrates.reload: true
   lootcrates.player:
     description: Allows to check the amount of crates a player has found
     default: not op
@@ -45,4 +64,7 @@ permissions:
     default: op
   lootcrates.respawn:
     description: Allows to respawn crates
+    default: op
+  lootcrates.reload:
+    description: Allows to reload config
     default: op

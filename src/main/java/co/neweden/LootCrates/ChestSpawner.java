@@ -8,9 +8,9 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import static co.neweden.LootCrates.Chances.*;
 import static co.neweden.LootCrates.ConfigRetriever.*;
-import static co.neweden.LootCrates.Database.chestNumberReturn;
+import static co.neweden.LootCrates.Database.*;
 import static co.neweden.LootCrates.Timer.DespawnChest;
-import static co.neweden.LootCrates.main.debugActive;
+import static co.neweden.LootCrates.Main.debugActive;
 
 
 public class ChestSpawner {
@@ -53,15 +53,14 @@ public class ChestSpawner {
 
         //Checks if there is no water or lava below chest
         World w = Bukkit.getWorld(ConfigRetriever.WorldConfig);
-        int retry = 0;
         int retryLimit = 50;
         int chestItemInt = 0;
-        while (retry < retryLimit) { // We don't want this running indefinitely
+        for (int retry = 0; retry < retryLimit; retry++) { // We don't want this running indefinitely
 
             int x = Chances.RandomLocationX();
             int z = Chances.RandomLocationZ();
             int y = getHighestBlockYAt(x,z); // MUST BE ON TOP OF GROUND
-            if(getRealCoords(x,z) == null) {
+            if(getRealCoords(x,z) != null) continue;{
 
                 Location chestLoc = new Location(w, x, y, z);
                 Material belowBlock = new Location(chestLoc.getWorld(), chestLoc.getX(), chestLoc.getY() - 1, chestLoc.getZ()).getBlock().getType();
@@ -82,8 +81,8 @@ public class ChestSpawner {
                         !side3.equals(Material.CHEST) &&
                         !side4.equals(Material.CHEST))
                 {
-                    int[] isFound = chestNumberReturn(x, y, z);
-                    if (isFound[1] == 0) {
+                    ChestNumberReturn chNumR = chestNumberReturn(x, y, z);
+                    if (chNumR.value != 0) continue; {
                         chestLoc.getBlock().setType(Material.CHEST);
                         Chest chest = (Chest) chestLoc.getBlock().getState();
                         chest.setCustomName(ChatColor.GREEN + ChestName);
@@ -98,15 +97,11 @@ public class ChestSpawner {
                             chestItemInt++;
                         }
                         Database.addChestToDatabase(chestLoc.getWorld().getName(), chNum, x, y, z, tier);
-                        debugActive(false, "A Special Chest " + tier + " has spawned | Try: " + retry);
+                        debugActive(false, "A Special Chest " + tier + " has spawned | Try: " + retry, null);
                         Timer.OnCrateCreated(chNum);
                     }
                     return;
-                } else {
-                    retry++;
                 }
-            } else{
-                retry++;
             }
         }
     }
@@ -127,51 +122,48 @@ public class ChestSpawner {
             newChest(Crates);
 
         }
-        debugActive(true,(Crates-1) + " Crates have been spawned");
+        debugActive(true,(Crates-1) + " Crates have been spawned", null);
     }
 
     public static void newChest(int chNum){
 
-        double chance = Chances.ChanceCalc();
+        double chance = ChanceCalc();
 
-        // 20% chance Five Star
-        if (chance <= 20) {
-            debugActive(false,"Chance: " + chance + " %");
+        // 5% chance Five Star
+        if (chance <= 5) {
+            debugActive(false,"Chance: " + chance + " %", null);
 
             SpawnChest(5, chNum);
             Crates = Crates + 1;
         }
-
-        // 20% chance Four Star
-        else if (chance > 20 && chance <= 40) {
-            debugActive(false,"Chance: " + chance + " %");
+        // 15% chance Four Star
+        else if (chance > 5 && chance <= 20) {
+            debugActive(false,"Chance: " + chance + " %", null);
 
             SpawnChest(4, chNum);
             Crates = Crates + 1;
         }
-
         // 20% chance Three Star
-        else if (chance > 40 && chance <= 60){
-            debugActive(false,"Chance: " + chance + " %");
+        else if (chance > 20 && chance <= 40){
+            debugActive(false,"Chance: " + chance + " %", null);
 
             SpawnChest(3, chNum);
             Crates = Crates + 1;
         }
-        // 20% chance Two Star
-        else if (chance > 60 && chance <= 80){
-            debugActive(false,"Chance: " + chance + " %");
+        // 25% chance Two Star
+        else if (chance > 40 && chance <= 65){
+            debugActive(false,"Chance: " + chance + " %", null);
 
             SpawnChest(2, chNum);
             Crates = Crates + 1;
         }
-        // 20% chance One Star
+        // 35% chance One Star
         else {
-            debugActive(false,"Chance: " + chance + " %");
+            debugActive(false,"Chance: " + chance + " %", null);
 
             SpawnChest(1, chNum);
             Crates = Crates + 1;
         }
-
     }
 
     public static String tierCalc(int tier){

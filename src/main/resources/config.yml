@@ -31,31 +31,31 @@ Items:
     Items:
     - 'LOG'
     - 'WOOD_AXE'
-    Max-Item: 3
+    Max-Item: 4
     Min-Item: 1
   Two-Star:
     Items:
     - 'IRON_ORE'
     - 'IRON_AXE'
-    Max-Item: 3
+    Max-Item: 4
     Min-Item: 1
   Three-Star:
     Items:
     - 'DIAMOND'
     - 'DIAMOND_AXE'
-    Max-Item: 4
+    Max-Item: 3
     Min-Item: 1
   Four-Star:
     Items:
     - 'BEACON'
     - 'EMERALD'
-    Max-Item: 4
+    Max-Item: 3
     Min-Item: 1
   Five-Star:
     Items:
     - 'NETHER_STAR'
     - 'EMERALD_BLOCK'
-    Max-Item: 5
+    Max-Item: 2
     Min-Item: 1
 
 Messages:

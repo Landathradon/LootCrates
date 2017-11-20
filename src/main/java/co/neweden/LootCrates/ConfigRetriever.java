@@ -2,12 +2,13 @@ package co.neweden.LootCrates;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.configuration.Configuration;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static co.neweden.LootCrates.main.debugActive;
-import static co.neweden.LootCrates.main.disablePlugin;
+import static co.neweden.LootCrates.Main.debugActive;
+import static co.neweden.LootCrates.Main.disablePlugin;
 
 public class ConfigRetriever {
 
@@ -58,38 +59,40 @@ public class ConfigRetriever {
     static ArrayList<Material> FiveStar = new ArrayList<>();
 
     //Constructor | Retrieving everything from the Config.yml File
-    ConfigRetriever(main pl) {
+    ConfigRetriever(Main pl) {
+
+        Configuration config = pl.getConfig();
 
         //retrieving items from the config
-        List<String> listOneStar = pl.getConfig().getStringList("Items.One-Star.Items");
-        List<String> listTwoStar = pl.getConfig().getStringList("Items.Two-Star.Items");
-        List<String> listThreeStar = pl.getConfig().getStringList("Items.Three-Star.Items");
-        List<String> listFourStar = pl.getConfig().getStringList("Items.Four-Star.Items");
-        List<String> listFiveStar = pl.getConfig().getStringList("Items.Five-Star.Items");
+        List<String> listOneStar = config.getStringList("Items.One-Star.Items");
+        List<String> listTwoStar = config.getStringList("Items.Two-Star.Items");
+        List<String> listThreeStar = config.getStringList("Items.Three-Star.Items");
+        List<String> listFourStar = config.getStringList("Items.Four-Star.Items");
+        List<String> listFiveStar = config.getStringList("Items.Five-Star.Items");
 
         //retrieving Max and Min random items values
-        MaxItemOneStar = pl.getConfig().getInt("Items.One-Star.Max-Item");
-        MinItemOneStar = pl.getConfig().getInt("Items.One-Star.Min-Item");
-        MaxItemTwoStar = pl.getConfig().getInt("Items.Two-Star.Max-Item");
-        MinItemTwoStar = pl.getConfig().getInt("Items.Two-Star.Min-Item");
-        MaxItemThreeStar = pl.getConfig().getInt("Items.Three-Star.Max-Item");
-        MinItemThreeStar = pl.getConfig().getInt("Items.Three-Star.Min-Item");
-        MaxItemFourStar = pl.getConfig().getInt("Items.Four-Star.Max-Item");
-        MinItemFourStar = pl.getConfig().getInt("Items.Four-Star.Min-Item");
-        MaxItemFiveStar = pl.getConfig().getInt("Items.Five-Star.Max-Item");
-        MinItemFiveStar = pl.getConfig().getInt("Items.Five-Star.Min-Item");
+        MaxItemOneStar = config.getInt("Items.One-Star.Max-Item");
+        MinItemOneStar = config.getInt("Items.One-Star.Min-Item");
+        MaxItemTwoStar = config.getInt("Items.Two-Star.Max-Item");
+        MinItemTwoStar = config.getInt("Items.Two-Star.Min-Item");
+        MaxItemThreeStar = config.getInt("Items.Three-Star.Max-Item");
+        MinItemThreeStar = config.getInt("Items.Three-Star.Min-Item");
+        MaxItemFourStar = config.getInt("Items.Four-Star.Max-Item");
+        MinItemFourStar = config.getInt("Items.Four-Star.Min-Item");
+        MaxItemFiveStar = config.getInt("Items.Five-Star.Max-Item");
+        MinItemFiveStar = config.getInt("Items.Five-Star.Min-Item");
 
         //retrieving messages from the config
-        FoundChest = pl.getConfig().getString("Messages.Found-Chest");
-        FoundChest_NB = pl.getConfig().getString("Messages.Found-Chest-NotBreak");
-        BreakChest = pl.getConfig().getString("Messages.Break-Chest");
+        FoundChest = config.getString("Messages.Found-Chest");
+        FoundChest_NB = config.getString("Messages.Found-Chest-NotBreak");
+        BreakChest = config.getString("Messages.Break-Chest");
 
         //MYSQL config
-        username = pl.getConfig().getString("mysql.username");
-        password = pl.getConfig().getString("mysql.password");
-        port = pl.getConfig().getString("mysql.port");
-        host = pl.getConfig().getString("mysql.host");
-        database = pl.getConfig().getString("mysql.database");
+        username = config.getString("mysql.username");
+        password = config.getString("mysql.password");
+        port = config.getString("mysql.port");
+        host = config.getString("mysql.host");
+        database = config.getString("mysql.database");
 
         //adding the items to their rarity list
         //One Star Crate List
@@ -113,74 +116,75 @@ public class ConfigRetriever {
         FiveStar.add(Material.getMaterial(listFiveStar.get(1)));
 
         //Other Stuff
-        WorldConfig = pl.getConfig().getString("Worlds");
-        Debug = pl.getConfig().getBoolean("Debug");
-        Enable_Plugin = pl.getConfig().getBoolean("Enable-Plugin");
-        MaxCrates = pl.getConfig().getInt("Crates.max-amount");
-        MaxSpawnTime = pl.getConfig().getDouble("Crates.max-spawned-time");
-        MinSpawnTime = pl.getConfig().getDouble("Crates.min-spawned-time");
+        WorldConfig = config.getString("Worlds");
+        Debug = config.getBoolean("Debug");
+        Enable_Plugin = config.getBoolean("Enable-Plugin");
+        MaxCrates = config.getInt("Crates.max-amount");
+        MaxSpawnTime = config.getDouble("Crates.max-spawned-time");
+        MinSpawnTime = config.getDouble("Crates.min-spawned-time");
 
         //Max Distance Allowed
-        max_x = pl.getConfig().getInt("Crates.max-x-distance");
-        min_x = pl.getConfig().getInt("Crates.min-x-distance");
-        max_z = pl.getConfig().getInt("Crates.max-z-distance");
-        min_z = pl.getConfig().getInt("Crates.min-z-distance");
+        max_x = config.getInt("Crates.max-x-distance");
+        min_x = config.getInt("Crates.min-x-distance");
+        max_z = config.getInt("Crates.max-z-distance");
+        min_z = config.getInt("Crates.min-z-distance");
     }
 
-    static void checkConfig(int val){
+    public static void checkConfig(int val){
 
         if(MinSpawnTime > MaxSpawnTime){
             if(val == 1) {
-                debugActive(true, "!!! Make sure the values in max-spawned-time and min-spawned-time are correct in the config !!!");
+                debugActive(true, "!!! Make sure the values in max-spawned-time and min-spawned-time are correct in the config !!!", null);
             }
-            disablePlugin();
+            MinSpawnTime = 5.0;
+            MaxSpawnTime = 20.0;
         }
         if(MinItemOneStar > MaxItemOneStar){
             if(val == 1) {
-                debugActive(true, "!!! Make sure the values in One-Star Max-Items and Min-Items are correct in the config !!!");
+                debugActive(true, "!!! Make sure the values in One-Star Max-Items and Min-Items are correct in the config !!!", null);
             }
-            disablePlugin();
-
+            MinItemOneStar = 1;
+            MaxItemOneStar = 4;
         }
         if(MinItemTwoStar > MaxItemTwoStar){
             if(val == 1) {
-                debugActive(true, "!!! Make sure the values in Two-Star Max-Items and Min-Items are correct in the config !!!");
+                debugActive(true, "!!! Make sure the values in Two-Star Max-Items and Min-Items are correct in the config !!!", null);
             }
-            disablePlugin();
-
+            MinItemTwoStar = 1;
+            MaxItemTwoStar = 4;
         }
         if(MinItemThreeStar > MaxItemThreeStar){
             if(val == 1) {
-                debugActive(true, "!!! Make sure the values in Three-Star Max-Items and Min-Items are correct in the config !!!");
+                debugActive(true, "!!! Make sure the values in Three-Star Max-Items and Min-Items are correct in the config !!!", null);
             }
-            disablePlugin();
-
+            MinItemThreeStar = 1;
+            MaxItemThreeStar = 3;
         }
         if(MinItemFourStar > MaxItemFourStar){
             if(val == 1) {
-                debugActive(true, "!!! Make sure the values in Four-Star Max-Items and Min-Items are correct in the config !!!");
+                debugActive(true, "!!! Make sure the values in Four-Star Max-Items and Min-Items are correct in the config !!!", null);
             }
-            disablePlugin();
-
+            MinItemFourStar = 1;
+            MaxItemFourStar = 3;
         }
         if(MinItemFiveStar > MaxItemFiveStar){
             if(val == 1) {
-                debugActive(true, "!!! Make sure the values in Five-Star Max-Items and Min-Items are correct in the config !!!");
+                debugActive(true, "!!! Make sure the values in Five-Star Max-Items and Min-Items are correct in the config !!!", null);
             }
-            disablePlugin();
-
+            MinItemFiveStar = 1;
+            MaxItemFiveStar = 2;
         }
         if(!Enable_Plugin){
             if(val == 1) {
-                debugActive(true, "!!! You have set the plugin as disabled in the config !!!");
+                debugActive(true, "!!! You have set the plugin as disabled in the config !!!", null);
             }
             disablePlugin();
 
         }
         if(username.equalsIgnoreCase("user") && password.equalsIgnoreCase("pass")){
             if(val == 1) {
-                debugActive(true, "!!! You need to change your username and password in the config !!!");
-                debugActive(true, "!!! Username: user and Password: pass are not secure enough !!!");
+                debugActive(true, "!!! You need to change your username and password in the config !!!", null);
+                debugActive(true, "!!! Username: user and Password: pass are not secure enough !!!", null);
             }
             disablePlugin();
         }
