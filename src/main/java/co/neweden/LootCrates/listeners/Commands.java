@@ -111,7 +111,6 @@ public class Commands implements CommandExecutor {
     private void respawnCratesCom(CommandSender sender) {
         if (sender.hasPermission("lootcrates.respawn")) {
             Bukkit.getScheduler().cancelAllTasks();
-            //need to check if crates exists in db
             Crates = 1;
             if (getCurrentChestsCount() > 0) {
                 count = 1;
@@ -135,13 +134,13 @@ public class Commands implements CommandExecutor {
     }
 
     private void lcCom(CommandSender sender) {
-        if (sender.hasPermission("lootcrates.reload")) {
-            sender.sendMessage(ChatColor.YELLOW + "Usage: /lootcrates player [player]\n" +
-                    "/lootcrates delete\n" +
-                    "/lootcrates current\n" +
-                    "/lootcrates respawn\n" +
-                    "/lootcrates reload");
-        }
+
+        sender.sendMessage(ChatColor.YELLOW + "Usage:\n /lootcrates player [player]\n" +
+                "/lootcrates delete\n" +
+                "/lootcrates current\n" +
+                "/lootcrates respawn\n" +
+                "/lootcrates reload");
+
     }
 
     //Deprecated, might need to change soon

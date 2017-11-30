@@ -13,12 +13,6 @@ import static co.neweden.LootCrates.ChestSpawner.ensureChunkLoaded;
 import static co.neweden.LootCrates.ConfigRetriever.*;
 
 class Chances {
-    private static Main plugin;
-
-    Chances(Main pl) {
-        plugin = pl;
-    }
-
 
     //calculate the chance to receive a good drop
     static double ChanceCalc() {
@@ -50,13 +44,13 @@ class Chances {
     }
 
     //Will calculate if the coords are within any protected areas
-    static LandClaim getRealCoords(int x, int z){
+    static LandClaim getRealCoords(int x, int z) {
 
-            World w = Bukkit.getWorld(ConfigRetriever.WorldConfig);
-            Location loc = new Location(w, x,0, z);
-            Chunk chunk = loc.getChunk();
+        World w = Bukkit.getWorld(ConfigRetriever.WorldConfig);
+        Location loc = new Location(w, x, 0, z);
+        Chunk chunk = loc.getChunk();
 
-            return LandManager.getLandClaim(chunk);
+        return LandManager.getLandClaim(chunk);
     }
 
     static int getHighestBlockYAt(int x, int z) {
@@ -117,9 +111,7 @@ class Chances {
                 temp = getSizeArrayList(FiveStar);
                 return FiveStar.get(temp);
             default:
-                break;
+                return Material.AIR;
         }
-
-        return Material.AIR;
     }
 }

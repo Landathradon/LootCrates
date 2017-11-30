@@ -54,16 +54,16 @@ permissions:
       lootcrates.respawn: true
       lootcrates.reload: true
   lootcrates.player:
-    description: Allows to check the amount of crates a player has found
+    description: Allows to check the amount of cratesMap a player has found
     default: not op
   lootcrates.delete:
-    description: Allows you to delete all crates currently spawned
+    description: Allows you to delete all cratesMap currently spawned
     default: op
   lootcrates.current:
-    description: Allows you to know how many crates are currently spawned
+    description: Allows you to know how many cratesMap are currently spawned
     default: op
   lootcrates.respawn:
-    description: Allows to respawn crates
+    description: Allows to respawn cratesMap
     default: op
   lootcrates.reload:
     description: Allows to reload config

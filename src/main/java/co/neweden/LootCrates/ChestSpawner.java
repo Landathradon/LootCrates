@@ -9,7 +9,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import static co.neweden.LootCrates.Chances.*;
 import static co.neweden.LootCrates.ConfigRetriever.*;
 import static co.neweden.LootCrates.Database.*;
-import static co.neweden.LootCrates.Timer.DespawnChest;
 import static co.neweden.LootCrates.Main.debugActive;
 
 
@@ -18,7 +17,7 @@ public class ChestSpawner {
     public static int Crates = 1;
 
     //Spawn a chest with specified items and names
-    private static void SpawnChest(int luck, int chNum){
+    private static void SpawnChest(int luck, int num, boolean newChest){
         String ChestName = "Chest";
         int ItemAmount = 0;
         //One Star loot config Setup
@@ -46,10 +45,10 @@ public class ChestSpawner {
             ChestName = "Special Super Rare Loot ☆☆☆☆☆";
             ItemAmount = getRandomAmountItems(5);
         }
-        checkBelowChestAndPlace(ChestName,ItemAmount, luck, chNum);
+        checkBelowChestAndPlace(ChestName,ItemAmount, luck, num, newChest);
     }
 
-    private static void checkBelowChestAndPlace(String ChestName, int ItemAmount, int tier, int chNum){
+    private static void checkBelowChestAndPlace(String ChestName, int ItemAmount, int tier, int num, boolean newChest){
 
         //Checks if there is no water or lava below chest
         World w = Bukkit.getWorld(ConfigRetriever.WorldConfig);
@@ -79,10 +78,11 @@ public class ChestSpawner {
                         !side1.equals(Material.CHEST) &&
                         !side2.equals(Material.CHEST) &&
                         !side3.equals(Material.CHEST) &&
-                        !side4.equals(Material.CHEST))
-                {
-                    ChestNumberReturn chNumR = chestNumberReturn(x, y, z);
-                    if (chNumR.value != 0) continue; {
+                        !side4.equals(Material.CHEST)) {
+
+                    int chNum = isChestPresent(num);
+                    if (chNum < 1 && chNum > MaxCrates) continue;
+                    {
                         chestLoc.getBlock().setType(Material.CHEST);
                         Chest chest = (Chest) chestLoc.getBlock().getState();
                         chest.setCustomName(ChatColor.GREEN + ChestName);
@@ -96,9 +96,20 @@ public class ChestSpawner {
                             ChestInv.setItem(ChestInvSlotRm(ChestInv), ds);
                             chestItemInt++;
                         }
-                        Database.addChestToDatabase(chestLoc.getWorld().getName(), chNum, x, y, z, tier);
-                        debugActive(false, "A Special Chest " + tier + " has spawned | Try: " + retry, null);
-                        Timer.OnCrateCreated(chNum);
+
+                        ChestClass chClass = new ChestClass();
+                        chClass.world = chestLoc.getWorld().getName();
+                        chClass.num = num;
+                        chClass.x = chestLoc.getBlockX();
+                        chClass.y = chestLoc.getBlockY();
+                        chClass.z = chestLoc.getBlockZ();
+                        chClass.tier = tier;
+                        chClass.found = 0;
+
+                        addChestToDatabase(chClass.world, chClass.num, chClass.x, chClass.y, chClass.z, chClass.tier, chClass.found, newChest);
+                        cratesMap.put(chestLoc.getBlock(), chClass);
+                        debugActive(false, "A Special Chest #" + num + ", Tier " + tier + " has spawned | Try: " + retry, null);
+                        Timer.OnCrateCreated(chestLoc.getBlock());
                     }
                     return;
                 }
@@ -119,50 +130,51 @@ public class ChestSpawner {
         // Checks if we haven't spawned too many Crates
         while (Crates <= MaxCrates) {
 
-            newChest(Crates);
+            newChest(Crates,false, true);
 
         }
         debugActive(true,(Crates-1) + " Crates have been spawned", null);
     }
 
-    public static void newChest(int chNum){
+    public static void newChest(int num, boolean respawn, boolean newChest){
 
         double chance = ChanceCalc();
+        if(!respawn) {num = Crates;}
 
         // 5% chance Five Star
         if (chance <= 5) {
             debugActive(false,"Chance: " + chance + " %", null);
 
-            SpawnChest(5, chNum);
-            Crates = Crates + 1;
+            SpawnChest(5, num, newChest);
+            Crates++;
         }
         // 15% chance Four Star
         else if (chance > 5 && chance <= 20) {
             debugActive(false,"Chance: " + chance + " %", null);
 
-            SpawnChest(4, chNum);
-            Crates = Crates + 1;
+            SpawnChest(4, num, newChest);
+            Crates++;
         }
         // 20% chance Three Star
         else if (chance > 20 && chance <= 40){
             debugActive(false,"Chance: " + chance + " %", null);
 
-            SpawnChest(3, chNum);
-            Crates = Crates + 1;
+            SpawnChest(3, num, newChest);
+            Crates++;
         }
         // 25% chance Two Star
         else if (chance > 40 && chance <= 65){
             debugActive(false,"Chance: " + chance + " %", null);
 
-            SpawnChest(2, chNum);
-            Crates = Crates + 1;
+            SpawnChest(2, num, newChest);
+            Crates++;
         }
         // 35% chance One Star
         else {
             debugActive(false,"Chance: " + chance + " %", null);
 
-            SpawnChest(1, chNum);
-            Crates = Crates + 1;
+            SpawnChest(1, num, newChest);
+            Crates++;
         }
     }
 
@@ -185,14 +197,5 @@ public class ChestSpawner {
         }
 
         return value;
-    }
-
-    public static int count = 1;
-    public static void deleteChest(){
-
-        while (count <= MaxCrates) {
-            DespawnChest(count, true);
-            count++;
-        }
     }
 }

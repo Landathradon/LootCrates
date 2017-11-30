@@ -1,18 +1,24 @@
 package co.neweden.LootCrates;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.block.Block;
 
 import java.sql.*;
-import java.util.UUID;
+import java.util.*;
 
+import static co.neweden.LootCrates.ChestSpawner.CreateChestOnStartup;
 import static co.neweden.LootCrates.ConfigRetriever.*;
 import static co.neweden.LootCrates.Main.con;
 import static co.neweden.LootCrates.Main.debugActive;
+import static co.neweden.LootCrates.Timer.DespawnChest;
 
 
 public class Database {
 
     private static Connection connection = null;
+    static Map<Block, ChestClass> cratesMap = new HashMap<>();
 
     static Connection getConnection() throws SQLException {
 
@@ -63,22 +69,43 @@ public class Database {
         }
     }
 
-    static void addChestToDatabase(String w, int num, int x, int y, int z, int tier){
+    static void addChestToDatabase(String w, int num, int x, int y, int z, int tier, int found, boolean newChest){
 
-        String sql = "INSERT INTO `chests` (`world`, `number`, `x`, `y`, `z`, `tier`, `found`) VALUES (?, ?, ?, ?, ?, ?, '0')";
+        if(newChest) {
+            String sql = "INSERT INTO `chests` (`world`, `number`, `x`, `y`, `z`, `tier`, `found`) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-        try {
-            PreparedStatement stmt = con.prepareStatement(sql);
-            stmt.setString(1, w);
-            stmt.setInt(2, num);
-            stmt.setInt(3, x);
-            stmt.setInt(4, y);
-            stmt.setInt(5, z);
-            stmt.setInt(6, tier);
-            stmt.executeUpdate();
-            debugActive(false,"Crate #" + num + " Added to Database", null);
-        } catch (SQLException e) {
-            debugActive(false,"Crate #" + num + " Could not be added !!", null);
+            try {
+                PreparedStatement stmt = con.prepareStatement(sql);
+                stmt.setString(1, w);
+                stmt.setInt(2, num);
+                stmt.setInt(3, x);
+                stmt.setInt(4, y);
+                stmt.setInt(5, z);
+                stmt.setInt(6, tier);
+                stmt.setInt(7, found);
+                stmt.executeUpdate();
+                debugActive(false, "Crate #" + num + " Added to Database", null);
+            } catch (SQLException e) {
+                debugActive(false, "Crate #" + num + " Could not be added !!", e);
+            }
+        } else {
+            String sql = "UPDATE `chests` SET `world`=?, `number`=?, `x`=?, `y`=?, `z`=?, `tier`=?, `found`=? WHERE `number`=?";
+
+            try {
+                PreparedStatement stmt = con.prepareStatement(sql);
+                stmt.setString(1, w);
+                stmt.setInt(2, num);
+                stmt.setInt(3, x);
+                stmt.setInt(4, y);
+                stmt.setInt(5, z);
+                stmt.setInt(6, tier);
+                stmt.setInt(7, found);
+                stmt.setInt(8, num);
+                stmt.executeUpdate();
+                debugActive(false, "Crate #" + num + " was updated in Database", null);
+            } catch (SQLException e) {
+                debugActive(false, "Crate #" + num + " Could not be updated !!", e);
+            }
         }
     }
 
@@ -145,71 +172,17 @@ public class Database {
 
             }
         } catch (SQLException e) {
-            debugActive(false,"Could not find anything for this player: " + uuid.toString(), null);
+            debugActive(false,"Could not find anything for this player: " + uuid.toString(), e);
         }
         return loots;
     }
 
-    public static ChestNumberReturn chestNumberReturn(int x, int y, int z){
+    public static void chestIsFound(UUID uuid,Block block){
 
-            ChestNumberReturn chNum = new ChestNumberReturn();
-
-            String sql = "SELECT number FROM chests WHERE (`x` = ? AND `y` = ? AND `z` = ?) GROUP BY number";
-
-            try {
-                PreparedStatement stmt = con.prepareStatement(sql);
-                stmt.setInt(1, x);
-                stmt.setInt(2, y);
-                stmt.setInt(3, z);
-                ResultSet rs = stmt.executeQuery();
-
-                // iterate through the java resultset
-                while (rs.next()) {
-                    chNum.num = rs.getInt("number");
-                    chNum.value = 1;
-                }
-            } catch (SQLException e) {
-                chNum.value = 1;
-                debugActive(false,"Reported Chest was not found", null);
-            }
-            return chNum;
-    }
-
-    public static ChestFromNum getChestFromNum(int num){
-        ChestFromNum chFNum = new ChestFromNum();
-
-        String sql = "SELECT * FROM `chests` WHERE `number` = ?";
-
-        try {
-            PreparedStatement stmt = con.prepareStatement(sql);
-            stmt.setInt(1, num);
-            ResultSet rs = stmt.executeQuery();
-
-            // iterate through the java resultset
-            while (rs.next()) {
-                chFNum.num = num;
-                chFNum.x = rs.getInt("x");
-                chFNum.y = rs.getInt("y");
-                chFNum.z = rs.getInt("z");
-                chFNum.tier = rs.getInt("tier");
-                chFNum.found = rs.getInt("found");
-                chFNum.exist = 1;
-
-            }
-        } catch (SQLException e) {
-            chFNum.exist = 0;
-            debugActive(false,"Could not retrieve crate # " + num + " data!!", null);
-        }
-        return chFNum;
-    }
-
-    public static void chestIsFound(UUID uuid, int x, int y, int z){
-
-        ChestNumberReturn chNum = chestNumberReturn(x, y, z);
+        ChestClass chClass = getCrateFromHashMap(block); //Checks if chest is found
         String name = Bukkit.getPlayer(uuid).getDisplayName();
-        ChestFromNum chFNum = getChestFromNum(chNum.num);
-        boolean correctCords = (chFNum.x == x && chFNum.y == y && chFNum.z == z);
-        boolean found = (chFNum.found == 0);
+        boolean correctCords = (chClass.x == block.getX() && chClass.y == block.getY() && chClass.z == block.getZ());
+        boolean found = (chClass.found == 0);
 
         //Checks if the Coordinates are equal and if the Crate hasn't been found
         if(!correctCords){return;}
@@ -219,25 +192,26 @@ public class Database {
 
                 Loots loots = getPlayerLoots(uuid);
 
-                ChestCount chCount = addPlayerChestCount(chFNum.tier,loots.total,loots.one_star,loots.two_star,loots.three_star,loots.four_star,loots.five_star);
+                ChestCount chCount = addPlayerChestCount(chClass.tier,loots.total,loots.one_star,loots.two_star,loots.three_star,loots.four_star,loots.five_star);
 
                 //Mark the chest as found
-                String sql3 = "UPDATE `chests` SET `found` = '1' WHERE `number` = ?";
+                ChestClass chClass2 = new ChestClass();
+                chClass2.world = chClass.world;
+                chClass2.num = chClass.num;
+                chClass2.x = chClass.x;
+                chClass2.y = chClass.y;
+                chClass2.z = chClass.z;
+                chClass2.tier = chClass.tier;
+                chClass2.found = 1;
+                cratesMap.put(block, chClass2);
 
-                try {
-                    PreparedStatement stmt = con.prepareStatement(sql3);
-                    stmt.setInt(1, chNum.num);
-                    stmt.executeUpdate();
-                    debugActive(false,"Crate # " + chNum.num + ",Tier: " + chFNum.tier + " was found by player: " + name + "", null);
-                } catch (SQLException e) {
-                    debugActive(false,"Could not update crate found by: " + name + " !!", null);
-                }
+                debugActive(false,"Crate # " + chClass.num + ",Tier: " + chClass.tier + " was found by player: " + name + "", null);
 
                 //Update current player number of chest found
-                String sql4 = "UPDATE `loots` SET `total_amount` = ?, `one_star` = ?, `two_star` = ?, `three_star` = ?, `four_star` = ?, `five_star` = ? WHERE `loots`.`uuid` = ?";
+                String sql = "UPDATE `loots` SET `total_amount` = ?, `one_star` = ?, `two_star` = ?, `three_star` = ?, `four_star` = ?, `five_star` = ? WHERE `loots`.`uuid` = ?";
 
                 try {
-                    PreparedStatement stmt = con.prepareStatement(sql4);
+                    PreparedStatement stmt = con.prepareStatement(sql);
                     stmt.setInt(1, chCount.total);
                     stmt.setInt(2, chCount.one_star);
                     stmt.setInt(3, chCount.two_star);
@@ -248,7 +222,7 @@ public class Database {
                     stmt.executeUpdate();
                     debugActive(false,"Updated player: " + name + " Crate data", null);
                 } catch (SQLException e) {
-                    debugActive(false,"Could not update player: " + name + " Crate data!!", null);
+                    debugActive(false,"Could not update player: " + name + " Crate data!!", e);
                 }
             }
         }
@@ -273,34 +247,11 @@ public class Database {
         return chCount;
     }
 
-    static void removeChestsFromDb() {
-        String sql = "TRUNCATE TABLE `chests`";
-
-        try {
-            PreparedStatement stmt = con.prepareStatement(sql);
-            stmt.executeUpdate();
-            debugActive(false,"Crates cleared from Database", null);
-        } catch (SQLException e) {
-            debugActive(false,"Could not remove all the crates from the Database !!", e);
-        }
-    }
-
-    public static void removeChestEvent(int x, int y, int z) {
-
-        ChestNumberReturn chNum = chestNumberReturn(x, y, z);
-        String sql = "DELETE FROM `chests` WHERE number = ?";
-
-        try {
-            PreparedStatement stmt = con.prepareStatement(sql);
-            stmt.setInt(1, chNum.num);
-            stmt.executeUpdate();
-            debugActive(false, "Crate removed from Database", null);
-        } catch (SQLException e) {
-            debugActive(false, "Could not remove the crates from the Database !!", null);
-        }
-    }
-
     public static int getCurrentChestsCount(){
+        return cratesMap.size();
+    }
+
+    private static int getChestCountInDb(){
         String sql = "SELECT COUNT(*) FROM `chests`";
         int count = 0;
         try {
@@ -311,8 +262,96 @@ public class Database {
             }
             return count;
         } catch (SQLException e) {
-            debugActive(false,"Could not retrieve current crates count from the Database !!", null);
+            debugActive(false,"Could not retrieve current crates count from the Database !!", e);
             return count;
+        }
+    }
+
+    static void loadCrates() {
+        int count = getChestCountInDb();
+        if (count == 0) {
+            CreateChestOnStartup();
+            return;
+        }
+
+        String sql = "SELECT * FROM `chests`";
+
+        try {
+            PreparedStatement stmt = con.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                ChestClass chClass = new ChestClass();
+                chClass.world = rs.getString("world");
+                chClass.num = rs.getInt("number");
+                chClass.x = rs.getInt("x");
+                chClass.y = rs.getInt("y");
+                chClass.z = rs.getInt("z");
+                chClass.tier = rs.getInt("tier");
+                chClass.found = rs.getInt("found");
+
+                World world = Bukkit.getWorld(chClass.world);
+                if (world == null) continue;
+                Block block = new Location(world, chClass.x, chClass.y, chClass.z).getBlock();
+                debugActive(false, "A Special Chest #" + chClass.num + ", Tier " + chClass.tier + " was spawned", null);
+                cratesMap.put(block, chClass);
+                if(chClass.found == 1){
+                    Timer.OnCrateCreated(block, 6000); //6000=5min, 600=30sec
+                }else {
+                    Timer.OnCrateCreated(block);
+                }
+            }
+        } catch (SQLException e) {
+            debugActive(false, "Could not retrieve crate data!!", e);
+        }
+    }
+
+    static void hashMapToDb() {
+        Set<Map.Entry <Block, ChestClass>> entries = cratesMap.entrySet();
+
+        for (Map.Entry<Block, ChestClass> chest : entries) {
+
+            ChestClass chClass = chest.getValue();
+
+            addChestToDatabase(chClass.world,chClass.num,chClass.x,chClass.y,chClass.z,chClass.tier,chClass.found, false);
+        }
+    }
+
+    public static ChestClass getCrateFromHashMap(Block block) {
+        return cratesMap.get(block);
+    }
+
+    public static void removeCrateFromHashMap(Block block){
+        cratesMap.remove(block);
+    }
+
+    static int isChestPresent(int num){
+        Optional<ChestClass> opt = cratesMap.values().stream().filter(e -> e.num == num).findFirst();
+        return opt.map(chestClass -> chestClass.num).orElse(0);
+    }
+
+    public static int count = 1;
+    public static void deleteChest(){
+
+        for (Block block : new HashSet<>(cratesMap.keySet())) {
+            count++;
+            removeChestsFromDb(block);
+            DespawnChest(block, true);
+        }
+    }
+
+    private static void removeChestsFromDb(Block block) {
+
+        ChestClass chClass = getCrateFromHashMap(block);
+        String sql = "DELETE FROM `chests` WHERE number = ?";
+
+        try {
+            PreparedStatement stmt = con.prepareStatement(sql);
+            stmt.setInt(1, chClass.num);
+            stmt.executeUpdate();
+            debugActive(false, "Crate removed from Database", null);
+        } catch (SQLException e) {
+            debugActive(false, "Could not remove the crates from the Database !!", e);
         }
     }
 
@@ -336,18 +375,13 @@ public class Database {
         int five_star;
     }
 
-    public static class ChestNumberReturn {
-        public int num;
-        public int value;
-    }
-
-    public static class ChestFromNum {
+    public static class ChestClass{
+        String world;
         public int num;
         int x;
         int y;
         int z;
         public int tier;
         public int found; //0 = false; 1 = true;
-        int exist;
     }
 }

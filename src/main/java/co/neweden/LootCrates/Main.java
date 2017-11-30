@@ -12,8 +12,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.logging.Level;
 
-import static co.neweden.LootCrates.ChestSpawner.*;
 import static co.neweden.LootCrates.ConfigRetriever.*;
 import static co.neweden.LootCrates.Database.*;
 
@@ -52,7 +52,7 @@ public class Main extends JavaPlugin implements Listener {
             }
 
             initDatabase();
-            CreateChestOnStartup(); //Spawns chest when server starts
+            loadCrates(); //Check if crates already exists in the db otherwise spawns em
     }
 
     @Override
@@ -60,10 +60,7 @@ public class Main extends JavaPlugin implements Listener {
         Bukkit.getScheduler().cancelAllTasks();
         checkConfig(0);
         if (!Disabled) {
-            count = 1;
-            deleteChest();//remove all chests from the database and delete them
-            debugActive(true, (count-1) + " Crates have been deleted", null);
-            removeChestsFromDb();//for now it will delete everything | Might be useless after few modifications
+            hashMapToDb();//put chests from hashmap into db
 
             try {
                 con.close();
@@ -84,8 +81,7 @@ public class Main extends JavaPlugin implements Listener {
     static void debugActive(Boolean important, String msg, Exception e) {
         boolean exception = false;
         if (e != null) {
-            plugin.getLogger().info(msg);
-            e.printStackTrace();
+            plugin.getLogger().log(Level.SEVERE, msg, e);
             exception = true;
         }
         if (important && !exception) {
