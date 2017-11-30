@@ -36,7 +36,6 @@ public class PlayerListener implements Listener {
             if(chClass == null){return;}
             event.setCancelled(true);
             event.getPlayer().sendMessage(lootcratesPrefix + ChatColor.RED + BreakChest);
-
         }
     }
 
