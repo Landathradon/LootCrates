@@ -58,10 +58,14 @@ public class ConfigRetriever {
     static ArrayList<Material> FourStar = new ArrayList<>();
     static ArrayList<Material> FiveStar = new ArrayList<>();
 
-    //Constructor | Retrieving everything from the Config.yml File
+    private static Main plugin;
     ConfigRetriever(Main pl) {
+            plugin = pl;
+        }
 
-        Configuration config = pl.getConfig();
+    //Retrieving everything from the Config.yml File
+    public static void getConfigStuff() {
+        Configuration config = plugin.getConfig();
 
         //retrieving items from the config
         List<String> listOneStar = config.getStringList("Items.One-Star.Items");
@@ -96,24 +100,34 @@ public class ConfigRetriever {
 
         //adding the items to their rarity list
         //One Star Crate List
-        OneStar.add(Material.getMaterial(listOneStar.get(0)));
-        OneStar.add(Material.getMaterial(listOneStar.get(1)));
+        OneStar.clear();
+        for (String aListOneStar : listOneStar) {
+            OneStar.add(Material.getMaterial(aListOneStar));
+        }
 
         //Two Star Crate List
-        TwoStar.add(Material.getMaterial(listTwoStar.get(0)));
-        TwoStar.add(Material.getMaterial(listTwoStar.get(1)));
+        TwoStar.clear();
+        for (String aListTwoStar : listTwoStar) {
+            TwoStar.add(Material.getMaterial(aListTwoStar));
+        }
 
         //Three Star Crate List
-        ThreeStar.add(Material.getMaterial(listThreeStar.get(0)));
-        ThreeStar.add(Material.getMaterial(listThreeStar.get(1)));
+        ThreeStar.clear();
+        for (String aListThreeStar : listThreeStar) {
+            ThreeStar.add(Material.getMaterial(aListThreeStar));
+        }
 
         //Four Star Crate List
-        FourStar.add(Material.getMaterial(listFourStar.get(0)));
-        FourStar.add(Material.getMaterial(listFourStar.get(1)));
+        FourStar.clear();
+        for (String aListFourStar : listFourStar) {
+            FourStar.add(Material.getMaterial(aListFourStar));
+        }
 
         //Five Star Crate List
-        FiveStar.add(Material.getMaterial(listFiveStar.get(0)));
-        FiveStar.add(Material.getMaterial(listFiveStar.get(1)));
+        FiveStar.clear();
+        for (String aListFiveStar : listFiveStar) {
+            FiveStar.add(Material.getMaterial(aListFiveStar));
+        }
 
         //Other Stuff
         WorldConfig = config.getString("Worlds");

@@ -33,26 +33,27 @@ public class Main extends JavaPlugin implements Listener {
 
         //noinspection unused
         ConfigRetriever cfr = new ConfigRetriever(this);
+        getConfigStuff();
         checkConfig(1);
         if (!Disabled) {
             startup();
         }
     }
 
-    private void startup(){
+    private void startup() {
         saveDefaultConfig();
         registerEvents();
         Timer timer = new Timer(this);
         Commands commands = new Commands(this);
 
-            try {
-                con = getConnection();
-            } catch (SQLException e) {
-                debugActive(true, "Database connection failed!! Please verify your MYSQL Config !!", null);
-            }
+        try {
+            con = getConnection();
+        } catch (SQLException e) {
+            debugActive(true, "Database connection failed!! Please verify your MYSQL Config !!", null);
+        }
 
-            initDatabase();
-            loadCrates(); //Check if crates already exists in the db otherwise spawns em
+        initDatabase();
+        loadCrates(); //Check if crates already exists in the db otherwise spawns em
     }
 
     @Override

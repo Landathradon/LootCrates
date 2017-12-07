@@ -8,7 +8,7 @@ softdepend: [LandManager]
 commands:
   LootCrates:
     description: Commands to manage Your Crates
-    aliases: [LC]
+    aliases: [lc]
     usage:
       /lootcrates player [player]
       /lootcrates delete
@@ -16,19 +16,19 @@ commands:
       /lootcrates respawn
       /lootcrates reload
   LootCrates Player:
-    aliases: [LootCrates P]
+    aliases: [lc p]
     description: This will show current player chest count or specified
     usage: /<command> [player]
     permission: lootcrates.player
     permission-message: You don't have <permission>
   LootCrates Delete:
-    aliases: [LootCrates Del]
+    aliases: [lc del]
     description: This will delete all current spawned chests
     usage: /<command>
     permission: lootcrates.delete
     permission-message: You don't have <permission>
   LootCrates Current:
-    aliases: [LootCrates Cur]
+    aliases: [lc cur]
     description: This will show all current chests spawned in the world
     usage: /<command>
     permission: lootcrates.current
@@ -39,7 +39,7 @@ commands:
     permission: lootcrates.respawn
     permission-message: You don't have <permission>
   LootCrates Reload:
-    aliases: [LootCrates RL]
+    aliases: [lc rl]
     description: This will reload the config
     usage: /<command>
     permission: lootcrates.respawn

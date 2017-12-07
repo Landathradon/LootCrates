@@ -13,6 +13,7 @@ import java.util.UUID;
 
 import static co.neweden.LootCrates.ChestSpawner.*;
 import static co.neweden.LootCrates.ConfigRetriever.checkConfig;
+import static co.neweden.LootCrates.ConfigRetriever.getConfigStuff;
 import static co.neweden.LootCrates.Database.*;
 
 public class Commands implements CommandExecutor {
@@ -40,36 +41,35 @@ public class Commands implements CommandExecutor {
 
     private void subCommand(CommandSender sender, String[] args) {
 
-            try {
+        try {
 
-                switch (args[0].toLowerCase()) {
-                    case "player":
-                    case "p":
-                        playerCratesCom(sender, args);
-                        break;
-                    case "delete":
-                    case "del":
-                        deleteCratesCom(sender);
-                        break;
-                    case "current":
-                    case "cur":
-                        currentCratesCom(sender);
-                        break;
-                    case "respawn":
-                        respawnCratesCom(sender);
-                        break;
-                    case "reload":
-                    case "rl":
-                        reloadCom(sender);
-                        break;
-                    default:
-                        lcCom(sender);
-                        break;
-                }
-
-            } catch (CommandException e) {
-                sender.sendMessage(ChatColor.RED + e.getMessage());
+            switch (args[0].toLowerCase()) {
+                case "player":
+                case "p":
+                    playerCratesCom(sender, args);
+                    break;
+                case "delete":
+                case "del":
+                    deleteCratesCom(sender);
+                    break;
+                case "current":
+                case "cur":
+                    currentCratesCom(sender);
+                    break;
+                case "respawn":
+                    respawnCratesCom(sender);
+                    break;
+                case "reload":
+                case "rl":
+                    reloadCom(sender);
+                    break;
+                default:
+                    lcCom(sender);
+                    break;
             }
+        } catch (CommandException e) {
+            sender.sendMessage(ChatColor.RED + e.getMessage());
+        }
     }
 
     private void playerCratesCom(CommandSender sender, String[] args) {
@@ -79,9 +79,9 @@ public class Commands implements CommandExecutor {
                 target.name = args[1].toLowerCase();
                 target.uuid = getPlayerUUID(target.name);
                 Loots loots = getPlayerLoots(target.uuid);
-                sender.sendMessage(ChatColor.GOLD + target.name + ChatColor.WHITE + " have a total of " + ChatColor.YELLOW + loots.total + ChatColor.WHITE + " Crates found\nOne Star: " + ChatColor.YELLOW + loots.one_star + ChatColor.WHITE +
-                        " | Two Star: " + ChatColor.YELLOW + loots.two_star + ChatColor.WHITE + " | Three Star: " + ChatColor.YELLOW + loots.three_star + ChatColor.WHITE +
-                        " | Four Star: " + ChatColor.YELLOW + loots.four_star + ChatColor.WHITE + "\nFive Star: " + ChatColor.YELLOW + loots.five_star);
+                sender.sendMessage(ChatColor.GOLD + target.name + ChatColor.WHITE + " have a total of " + ChatColor.YELLOW + loots.total + ChatColor.WHITE + " Crates found" +
+                "\nOne Star: " + ChatColor.YELLOW + loots.one_star + ChatColor.WHITE + " | Two Star: " + ChatColor.YELLOW + loots.two_star + ChatColor.WHITE + " | Three Star: " + ChatColor.YELLOW + loots.three_star + ChatColor.WHITE +
+                "\nFour Star: " + ChatColor.YELLOW + loots.four_star + ChatColor.WHITE + " | Five Star: " + ChatColor.YELLOW + loots.five_star);
             } else {
                 sender.sendMessage(player_perm);
             }
@@ -93,7 +93,13 @@ public class Commands implements CommandExecutor {
             Bukkit.getScheduler().cancelAllTasks();
             count = 1;
             deleteChest();
-            sender.sendMessage(ChatColor.GREEN + "All " + ChatColor.YELLOW + (count - 1) + ChatColor.GREEN + " crates have been" + ChatColor.RED + " deleted");
+            int realCount = count - 1;
+            String msg = ChatColor.GREEN + " crates have been" + ChatColor.RED + " deleted";
+            if(realCount > 0) {
+                sender.sendMessage(ChatColor.YELLOW + String.valueOf(realCount) + msg);
+            }else if(realCount == 0){
+                sender.sendMessage(ChatColor.YELLOW + "No" + msg);
+            }
         } else {
             sender.sendMessage(player_perm);
         }
@@ -105,7 +111,6 @@ public class Commands implements CommandExecutor {
         } else {
             sender.sendMessage(player_perm);
         }
-
     }
 
     private void respawnCratesCom(CommandSender sender) {
@@ -128,6 +133,7 @@ public class Commands implements CommandExecutor {
     private void reloadCom(CommandSender sender) {
         if (sender.hasPermission("lootcrates.reload")) {
             plugin.reloadConfig();
+            getConfigStuff();
             checkConfig(1);
             sender.sendMessage(ChatColor.GREEN + "[LootCrates] Config reloaded!");
         }
@@ -140,7 +146,6 @@ public class Commands implements CommandExecutor {
                 "/lootcrates current\n" +
                 "/lootcrates respawn\n" +
                 "/lootcrates reload");
-
     }
 
     //Deprecated, might need to change soon

@@ -310,9 +310,7 @@ public class Database {
         Set<Map.Entry <Block, ChestClass>> entries = cratesMap.entrySet();
 
         for (Map.Entry<Block, ChestClass> chest : entries) {
-
             ChestClass chClass = chest.getValue();
-
             addChestToDatabase(chClass.world,chClass.num,chClass.x,chClass.y,chClass.z,chClass.tier,chClass.found, false);
         }
     }

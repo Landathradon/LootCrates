@@ -129,9 +129,7 @@ public class ChestSpawner {
 
         // Checks if we haven't spawned too many Crates
         while (Crates <= MaxCrates) {
-
             newChest(Crates,false, true);
-
         }
         debugActive(true,(Crates-1) + " Crates have been spawned", null);
     }
@@ -144,35 +142,30 @@ public class ChestSpawner {
         // 5% chance Five Star
         if (chance <= 5) {
             debugActive(false,"Chance: " + chance + " %", null);
-
             SpawnChest(5, num, newChest);
             Crates++;
         }
         // 15% chance Four Star
         else if (chance > 5 && chance <= 20) {
             debugActive(false,"Chance: " + chance + " %", null);
-
             SpawnChest(4, num, newChest);
             Crates++;
         }
         // 20% chance Three Star
         else if (chance > 20 && chance <= 40){
             debugActive(false,"Chance: " + chance + " %", null);
-
             SpawnChest(3, num, newChest);
             Crates++;
         }
         // 25% chance Two Star
         else if (chance > 40 && chance <= 65){
             debugActive(false,"Chance: " + chance + " %", null);
-
             SpawnChest(2, num, newChest);
             Crates++;
         }
         // 35% chance One Star
         else {
             debugActive(false,"Chance: " + chance + " %", null);
-
             SpawnChest(1, num, newChest);
             Crates++;
         }
@@ -195,7 +188,6 @@ public class ChestSpawner {
         else if (tier == 5){
             value = "☆☆☆☆☆";
         }
-
         return value;
     }
 }

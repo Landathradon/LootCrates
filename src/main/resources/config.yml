@@ -58,6 +58,7 @@ Items:
     Max-Item: 2
     Min-Item: 1
 
+#List of messages
 Messages:
   Found-Chest: "&2Congratulations! &fYou found a Loot Crate, these Crates are randomly generated, you can find more of them throughout the world!"
   Found-Chest-NotBreak: "&2Congratulations! &fYou found a Loot Crate, these Crates are randomly generated, now that this one has been found you should take all of the contents you want as it will disappear in 5 minutes, you can find more of them throughout the world!"
