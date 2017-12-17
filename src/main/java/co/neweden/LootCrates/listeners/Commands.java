@@ -1,5 +1,8 @@
 package co.neweden.LootCrates.listeners;
 
+import co.neweden.LootCrates.ChestSpawner;
+import co.neweden.LootCrates.ConfigRetriever;
+import co.neweden.LootCrates.Database;
 import co.neweden.LootCrates.Main;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -10,11 +13,6 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
 import java.util.UUID;
-
-import static co.neweden.LootCrates.ChestSpawner.*;
-import static co.neweden.LootCrates.ConfigRetriever.checkConfig;
-import static co.neweden.LootCrates.ConfigRetriever.getConfigStuff;
-import static co.neweden.LootCrates.Database.*;
 
 public class Commands implements CommandExecutor {
     private static Main plugin;
@@ -77,8 +75,8 @@ public class Commands implements CommandExecutor {
             if (sender.hasPermission("lootcrates.player")) {
                 Target target = new Target();
                 target.name = args[1].toLowerCase();
-                target.uuid = getPlayerUUID(target.name);
-                Loots loots = getPlayerLoots(target.uuid);
+                //target.uuid = getPlayerUUID(target.name);
+                Database.Loots loots = Database.getPlayerLoots(null, target.name,"name");
                 sender.sendMessage(ChatColor.GOLD + target.name + ChatColor.WHITE + " have a total of " + ChatColor.YELLOW + loots.total + ChatColor.WHITE + " Crates found" +
                 "\nOne Star: " + ChatColor.YELLOW + loots.one_star + ChatColor.WHITE + " | Two Star: " + ChatColor.YELLOW + loots.two_star + ChatColor.WHITE + " | Three Star: " + ChatColor.YELLOW + loots.three_star + ChatColor.WHITE +
                 "\nFour Star: " + ChatColor.YELLOW + loots.four_star + ChatColor.WHITE + " | Five Star: " + ChatColor.YELLOW + loots.five_star);
@@ -91,9 +89,8 @@ public class Commands implements CommandExecutor {
     private void deleteCratesCom(CommandSender sender) {
         if (sender.hasPermission("lootcrates.delete")) {
             Bukkit.getScheduler().cancelAllTasks();
-            count = 1;
-            deleteChest();
-            int realCount = count - 1;
+            Database.deleteChest();
+            int realCount = Database.getCurrentChestsCount();
             String msg = ChatColor.GREEN + " crates have been" + ChatColor.RED + " deleted";
             if(realCount > 0) {
                 sender.sendMessage(ChatColor.YELLOW + String.valueOf(realCount) + msg);
@@ -107,7 +104,7 @@ public class Commands implements CommandExecutor {
 
     private void currentCratesCom(CommandSender sender) {
         if (sender.hasPermission("lootcrates.current")) {
-            sender.sendMessage( ChatColor.GRAY + "There is currently " + ChatColor.YELLOW + getCurrentChestsCount() + ChatColor.GRAY + " crates in the world");
+            sender.sendMessage( ChatColor.GRAY + "There is currently " + ChatColor.YELLOW + Database.getCurrentChestsCount() + ChatColor.GRAY + " crates in the world");
         } else {
             sender.sendMessage(player_perm);
         }
@@ -116,13 +113,11 @@ public class Commands implements CommandExecutor {
     private void respawnCratesCom(CommandSender sender) {
         if (sender.hasPermission("lootcrates.respawn")) {
             Bukkit.getScheduler().cancelAllTasks();
-            Crates = 1;
-            if (getCurrentChestsCount() > 0) {
-                count = 1;
-                deleteChest();
-                CreateChestOnStartup();
-            } else if (getCurrentChestsCount() == 0) {
-                CreateChestOnStartup();
+            if (Database.getCurrentChestsCount() > 0) {
+                Database.deleteChest();
+                ChestSpawner.CreateChestOnStartup();
+            } else if (Database.getCurrentChestsCount() == 0) {
+                ChestSpawner.CreateChestOnStartup();
             }
             sender.sendMessage(ChatColor.GREEN + "Every crates have respawn");
         } else {
@@ -133,26 +128,27 @@ public class Commands implements CommandExecutor {
     private void reloadCom(CommandSender sender) {
         if (sender.hasPermission("lootcrates.reload")) {
             plugin.reloadConfig();
-            getConfigStuff();
-            checkConfig(1);
+            ConfigRetriever.getConfigStuff();
+            ConfigRetriever.checkConfig(true);
             sender.sendMessage(ChatColor.GREEN + "[LootCrates] Config reloaded!");
         }
     }
 
     private void lcCom(CommandSender sender) {
 
-        sender.sendMessage(ChatColor.YELLOW + "Usage:\n /lootcrates player [player]\n" +
-                "/lootcrates delete\n" +
-                "/lootcrates current\n" +
-                "/lootcrates respawn\n" +
-                "/lootcrates reload");
+        sender.sendMessage(ChatColor.YELLOW + "Usage:\n" +
+                "/lootcrates player [player] | This show user crates stats\n" +
+                "/lootcrates delete | This delete all current spawned crates\n" +
+                "/lootcrates current | This show how many crates are spawned\n" +
+                "/lootcrates respawn | This will respawn crates up to max amount\n" +
+                "/lootcrates reload | This will reload the plugin's config");
     }
 
-    //Deprecated, might need to change soon
-    private UUID getPlayerUUID(String name){
-        OfflinePlayer op = Bukkit.getOfflinePlayer(name);
-        return op.getUniqueId();
-    }
+//    //Deprecated, might need to change soon
+//    private UUID getPlayerUUID(String name){
+//        OfflinePlayer op = Bukkit.getOfflinePlayer(name);
+//        return op.getUniqueId();
+//    }
 
     private class Target{
         String name;

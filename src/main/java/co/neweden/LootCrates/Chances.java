@@ -9,9 +9,6 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static co.neweden.LootCrates.ChestSpawner.ensureChunkLoaded;
-import static co.neweden.LootCrates.ConfigRetriever.*;
-
 class Chances {
 
     //calculate the chance to receive a good drop
@@ -25,11 +22,11 @@ class Chances {
 
     //calculate random spawn points for the chest
     static int RandomLocationX() {
-        return ThreadLocalRandom.current().nextInt(min_x, max_x);
+        return ThreadLocalRandom.current().nextInt(ConfigRetriever.min_x, ConfigRetriever.max_x);
     }
 
     static int RandomLocationZ() {
-        return ThreadLocalRandom.current().nextInt(min_z, max_z);
+        return ThreadLocalRandom.current().nextInt(ConfigRetriever.min_z, ConfigRetriever.max_z);
     }
 
     static int ChestInvSlotRm(Inventory inv){
@@ -55,8 +52,8 @@ class Chances {
 
     static int getHighestBlockYAt(int x, int z) {
         World w = Bukkit.getWorld(ConfigRetriever.WorldConfig);
-        ensureChunkLoaded(x,z,w);
-        return w.getHighestBlockYAt(x, z);
+        ChestSpawner.ensureChunkLoaded(x,z,w);
+        return w.getHighestBlockYAt(x,z);
     }
 
     private static int getSizeArrayList(ArrayList array){
@@ -67,8 +64,8 @@ class Chances {
     }
 
     static long randomDespawnTime(){
-        long min_time = (long) ((MinSpawnTime*60)*20);
-        long max_time = (long) ((MaxSpawnTime*60)*20);
+        long min_time = (long) ((ConfigRetriever.MinSpawnTime*60)*20);
+        long max_time = (long) ((ConfigRetriever.MaxSpawnTime*60)*20);
 
         return ThreadLocalRandom.current().nextLong(min_time, max_time);
     }
@@ -76,15 +73,15 @@ class Chances {
     static int getRandomAmountItems(int tier){
         switch (tier){
             case 1:
-                return ThreadLocalRandom.current().nextInt(MinItemOneStar,MaxItemOneStar);
+                return ThreadLocalRandom.current().nextInt(ConfigRetriever.MinItemOneStar, ConfigRetriever.MaxItemOneStar);
             case 2:
-                return ThreadLocalRandom.current().nextInt(MinItemTwoStar,MaxItemTwoStar);
+                return ThreadLocalRandom.current().nextInt(ConfigRetriever.MinItemTwoStar, ConfigRetriever.MaxItemTwoStar);
             case 3:
-                return ThreadLocalRandom.current().nextInt(MinItemThreeStar,MaxItemThreeStar);
+                return ThreadLocalRandom.current().nextInt(ConfigRetriever.MinItemThreeStar, ConfigRetriever.MaxItemThreeStar);
             case 4:
-                return ThreadLocalRandom.current().nextInt(MinItemFourStar,MaxItemFourStar);
+                return ThreadLocalRandom.current().nextInt(ConfigRetriever.MinItemFourStar, ConfigRetriever.MaxItemFourStar);
             case 5:
-                return ThreadLocalRandom.current().nextInt(MinItemFiveStar,MaxItemFiveStar);
+                return ThreadLocalRandom.current().nextInt(ConfigRetriever.MinItemFiveStar, ConfigRetriever.MaxItemFiveStar);
             default:
                 break;
         }
@@ -96,20 +93,20 @@ class Chances {
         int temp;
         switch (tier){
             case 1:
-                temp = getSizeArrayList(OneStar);
-                return OneStar.get(temp);
+                temp = getSizeArrayList(ConfigRetriever.OneStar);
+                return ConfigRetriever.OneStar.get(temp);
             case 2:
-                temp = getSizeArrayList(TwoStar);
-                return TwoStar.get(temp);
+                temp = getSizeArrayList(ConfigRetriever.TwoStar);
+                return ConfigRetriever.TwoStar.get(temp);
             case 3:
-                temp = getSizeArrayList(ThreeStar);
-                return ThreeStar.get(temp);
+                temp = getSizeArrayList(ConfigRetriever.ThreeStar);
+                return ConfigRetriever.ThreeStar.get(temp);
             case 4:
-                temp = getSizeArrayList(FourStar);
-                return FourStar.get(temp);
+                temp = getSizeArrayList(ConfigRetriever.FourStar);
+                return ConfigRetriever.FourStar.get(temp);
             case 5:
-                temp = getSizeArrayList(FiveStar);
-                return FiveStar.get(temp);
+                temp = getSizeArrayList(ConfigRetriever.FiveStar);
+                return ConfigRetriever.FiveStar.get(temp);
             default:
                 return Material.AIR;
         }

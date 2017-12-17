@@ -7,9 +7,6 @@ import org.bukkit.configuration.Configuration;
 import java.util.ArrayList;
 import java.util.List;
 
-import static co.neweden.LootCrates.Main.debugActive;
-import static co.neweden.LootCrates.Main.disablePlugin;
-
 public class ConfigRetriever {
 
     //Max & Min amount of items
@@ -144,63 +141,63 @@ public class ConfigRetriever {
         min_z = config.getInt("Crates.min-z-distance");
     }
 
-    public static void checkConfig(int val){
+    public static void checkConfig(boolean activeMessages){
 
         if(MinSpawnTime > MaxSpawnTime){
-            if(val == 1) {
-                debugActive(true, "!!! Make sure the values in max-spawned-time and min-spawned-time are correct in the config !!!", null);
+            if(activeMessages) {
+                Main.debugActive(true, "!!! Make sure the values in max-spawned-time and min-spawned-time are correct in the config !!!", null);
             }
             MinSpawnTime = 5.0;
             MaxSpawnTime = 20.0;
         }
         if(MinItemOneStar > MaxItemOneStar){
-            if(val == 1) {
-                debugActive(true, "!!! Make sure the values in One-Star Max-Items and Min-Items are correct in the config !!!", null);
+            if(activeMessages) {
+                Main.debugActive(true, "!!! Make sure the values in One-Star Max-Items and Min-Items are correct in the config !!!", null);
             }
             MinItemOneStar = 1;
             MaxItemOneStar = 4;
         }
         if(MinItemTwoStar > MaxItemTwoStar){
-            if(val == 1) {
-                debugActive(true, "!!! Make sure the values in Two-Star Max-Items and Min-Items are correct in the config !!!", null);
+            if(activeMessages) {
+                Main.debugActive(true, "!!! Make sure the values in Two-Star Max-Items and Min-Items are correct in the config !!!", null);
             }
             MinItemTwoStar = 1;
             MaxItemTwoStar = 4;
         }
         if(MinItemThreeStar > MaxItemThreeStar){
-            if(val == 1) {
-                debugActive(true, "!!! Make sure the values in Three-Star Max-Items and Min-Items are correct in the config !!!", null);
+            if(activeMessages) {
+                Main.debugActive(true, "!!! Make sure the values in Three-Star Max-Items and Min-Items are correct in the config !!!", null);
             }
             MinItemThreeStar = 1;
             MaxItemThreeStar = 3;
         }
         if(MinItemFourStar > MaxItemFourStar){
-            if(val == 1) {
-                debugActive(true, "!!! Make sure the values in Four-Star Max-Items and Min-Items are correct in the config !!!", null);
+            if(activeMessages) {
+                Main.debugActive(true, "!!! Make sure the values in Four-Star Max-Items and Min-Items are correct in the config !!!", null);
             }
             MinItemFourStar = 1;
             MaxItemFourStar = 3;
         }
         if(MinItemFiveStar > MaxItemFiveStar){
-            if(val == 1) {
-                debugActive(true, "!!! Make sure the values in Five-Star Max-Items and Min-Items are correct in the config !!!", null);
+            if(activeMessages) {
+                Main.debugActive(true, "!!! Make sure the values in Five-Star Max-Items and Min-Items are correct in the config !!!", null);
             }
             MinItemFiveStar = 1;
             MaxItemFiveStar = 2;
         }
         if(!Enable_Plugin){
-            if(val == 1) {
-                debugActive(true, "!!! You have set the plugin as disabled in the config !!!", null);
+            if(activeMessages) {
+                Main.debugActive(true, "!!! You have set the plugin as disabled in the config !!!", null);
             }
-            disablePlugin();
+            Main.disablePlugin();
 
         }
         if(username.equalsIgnoreCase("user") && password.equalsIgnoreCase("pass")){
-            if(val == 1) {
-                debugActive(true, "!!! You need to change your username and password in the config !!!", null);
-                debugActive(true, "!!! Username: user and Password: pass are not secure enough !!!", null);
+            if(activeMessages) {
+                Main.debugActive(true, "!!! You need to change your username and password in the config !!!", null);
+                Main.debugActive(true, "!!! Username: user and Password: pass are not secure enough !!!", null);
             }
-            disablePlugin();
+            Main.disablePlugin();
         }
     }
 }

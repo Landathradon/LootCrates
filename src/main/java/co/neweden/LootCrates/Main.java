@@ -14,9 +14,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.logging.Level;
 
-import static co.neweden.LootCrates.ConfigRetriever.*;
-import static co.neweden.LootCrates.Database.*;
-
 public class Main extends JavaPlugin implements Listener {
     private static Plugin plugin;
     static Connection con;
@@ -33,8 +30,8 @@ public class Main extends JavaPlugin implements Listener {
 
         //noinspection unused
         ConfigRetriever cfr = new ConfigRetriever(this);
-        getConfigStuff();
-        checkConfig(1);
+        ConfigRetriever.getConfigStuff();
+        ConfigRetriever.checkConfig(true);
         if (!Disabled) {
             startup();
         }
@@ -47,21 +44,20 @@ public class Main extends JavaPlugin implements Listener {
         Commands commands = new Commands(this);
 
         try {
-            con = getConnection();
+            con = Database.getConnection();
         } catch (SQLException e) {
             debugActive(true, "Database connection failed!! Please verify your MYSQL Config !!", null);
         }
 
-        initDatabase();
-        loadCrates(); //Check if crates already exists in the db otherwise spawns em
+        Database.initDatabase();
+        Database.loadCrates(); //Check if crates already exists in the db otherwise spawns em
     }
 
     @Override
     public void onDisable() {
         Bukkit.getScheduler().cancelAllTasks();
-        checkConfig(0);
+        ConfigRetriever.checkConfig(false);
         if (!Disabled) {
-            hashMapToDb();//put chests from hashmap into db
 
             try {
                 con.close();
@@ -88,7 +84,7 @@ public class Main extends JavaPlugin implements Listener {
         if (important && !exception) {
             plugin.getLogger().info(msg);
         } else //noinspection ConstantConditions
-            if (Debug && !important && !exception) {
+            if (ConfigRetriever.Debug && !important && !exception) {
             plugin.getLogger().info(msg);
         }
     }
