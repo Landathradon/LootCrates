@@ -55,7 +55,7 @@ public class PlayerListener implements Listener {
 
         if (event.getInventory().getContents().length > 0 && chest.found) {
             //Chest was found by a player | marking it as found
-            Database.chestIsFound(player.getUniqueId(),c.getBlock());
+            Database.chestIsFound(player,chest);
             Bukkit.broadcastMessage(message);
             String FoundChest_NB_Colored = ChatColor.translateAlternateColorCodes('&', ConfigRetriever.FoundChest_NB);
             player.sendMessage(FoundChest_NB_Colored);

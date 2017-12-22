@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 
 import java.sql.*;
 import java.util.*;
@@ -155,38 +156,18 @@ public class Database {
         return loots;
     }
 
-    public static void chestIsFound(UUID uuid,Block block) {
+    public static void chestIsFound(Player player, ChestClass chest) {
 
-        ChestClass chClass = getCrateFromHashMap(block); //Checks if chest is found
-        String name = Bukkit.getPlayer(uuid).getDisplayName();
-        boolean correctCords = (chClass.x == block.getX() && chClass.y == block.getY() && chClass.z == block.getZ());
-        boolean found = (!chClass.found);
+        if (!chest.found) return;
 
-        //Checks if the Coordinates are equal and if the Crate hasn't been found
-        if (!correctCords) {
-            return;
-        }
+        Loots loots = getPlayerLoots(player.getUniqueId(), null , "uuid");
 
-        if (!found) {
-            return;
-        }
-
-        Loots loots = getPlayerLoots(uuid, null , "uuid");
-
-        ChestCount chCount = addPlayerChestCount(chClass.tier, loots.total, loots.one_star, loots.two_star, loots.three_star, loots.four_star, loots.five_star);
+        ChestCount chCount = addPlayerChestCount(chest.tier, loots.total, loots.one_star, loots.two_star, loots.three_star, loots.four_star, loots.five_star);
 
         //Mark the chest as found
-        ChestClass chClass2 = new ChestClass();
-        chClass2.world = chClass.world;
-        chClass2.num = chClass.num;
-        chClass2.x = chClass.x;
-        chClass2.y = chClass.y;
-        chClass2.z = chClass.z;
-        chClass2.tier = chClass.tier;
-        chClass2.found = true;
-        cratesMap.put(block, chClass2);
+        chest.found = true;
 
-        Main.debugActive(false, "Crate # " + chClass.num + ",Tier: " + chClass.tier + " was found by player: " + name + "", null);
+        Main.debugActive(false, "Crate # " + chest.num + ", Tier: " + chest.tier + " was found by player: " + player.getDisplayName() + "", null);
 
         //Update current player number of chest found
         String sql = "UPDATE `loots` SET `total_amount` = ?, `one_star` = ?, `two_star` = ?, `three_star` = ?, `four_star` = ?, `five_star` = ? WHERE `loots`.`uuid` = ?";
@@ -199,11 +180,11 @@ public class Database {
             stmt.setInt(4, chCount.three_star);
             stmt.setInt(5, chCount.four_star);
             stmt.setInt(6, chCount.five_star);
-            stmt.setString(7, uuid.toString());
+            stmt.setString(7, player.getUniqueId().toString());
             stmt.executeUpdate();
-            Main.debugActive(false, "Updated player: " + name + " Crate data", null);
+            Main.debugActive(false, "Updated player: " + player.getDisplayName() + " Crate data", null);
         } catch (SQLException e) {
-            Main.debugActive(false, "Could not update player: " + name + " Crate data!!", e);
+            Main.debugActive(false, "Could not update player: " + player.getDisplayName() + " Crate data!!", e);
         }
     }
 
