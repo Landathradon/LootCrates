@@ -39,31 +39,21 @@ public class PlayerListener implements Listener {
     // Remove chest when close
     @EventHandler
     public void onChestClose(InventoryCloseEvent event) {
-        LivingEntity user = event.getPlayer();
-        boolean isPlayer = (user instanceof Player);
-        boolean isChest = (event.getInventory().getHolder() instanceof Chest);
-
-        if (!isPlayer) {return;}
-        Player player = (Player) user;
-        if (!isChest) {return;}
+        if (!(event.getPlayer() instanceof Player) || !(event.getInventory().getHolder() instanceof Chest)) return;
+        Player player = (Player) event.getPlayer();
         Chest c = (Chest) event.getInventory().getHolder();
 
         //check if chest exists
-        Database.ChestClass chClass = Database.getCrateFromHashMap(c.getBlock()); //Checks if chest is found
-        if(chClass == null || !chClass.found) return;
-        boolean found = chClass.found;
+        Database.ChestClass chest = Database.getCrateFromHashMap(c.getBlock()); //Checks if chest is found
+        if (chest == null) return;
 
         String tier1 = "";
-        if (chClass.tier == 1) {
+        if (chest.tier == 1) {
             tier1 = ChatColor.WHITE + " | " + ChatColor.RED + "(╯°□°）╯︵ ┻━┻";
         }
-        String message = ChatColor.GOLD + player.getDisplayName() + ChatColor.GRAY + " has found a " + ChatColor.YELLOW + ChestSpawner.tierCalc(chClass.tier) + ChatColor.GRAY + " Crate" + tier1;// + " in " + player.getWorld().getName();
+        String message = ChatColor.GOLD + player.getDisplayName() + ChatColor.GRAY + " has found a " + ChatColor.YELLOW + ChestSpawner.tierCalc(chest.tier) + ChatColor.GRAY + " Crate" + tier1;// + " in " + player.getWorld().getName();
 
-        ItemStack[] items = event.getInventory().getContents();
-        for (ItemStack item : items) {
-            if (item == null) {continue;}
-            //Checks if chest has already been found so it wont display a message twice
-            if (found) {return;}
+        if (event.getInventory().getContents().length > 0 && chest.found) {
             //Chest was found by a player | marking it as found
             Database.chestIsFound(player.getUniqueId(),c.getBlock());
             Bukkit.broadcastMessage(message);
@@ -74,7 +64,7 @@ public class PlayerListener implements Listener {
         }
 
         //Run code to execute if the chest is empty
-        if(!found){
+        if(!chest.found){
             Bukkit.broadcastMessage(message);
             String FoundChest_Colored = ChatColor.translateAlternateColorCodes('&', ConfigRetriever.FoundChest);
             player.sendMessage(FoundChest_Colored);
