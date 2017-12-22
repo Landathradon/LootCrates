@@ -211,34 +211,16 @@ public class Database {
         return cratesMap.size();
     }
 
-    private static int getChestCountInDb(){
-        String sql = "SELECT COUNT(*) FROM `chests`";
-        int count = 0;
-        try {
-            Statement stmt = Main.con.createStatement();
-            ResultSet rs = stmt.executeQuery(sql);
-            while (rs.next()) {
-                count = rs.getInt("COUNT(*)");
-            }
-            return count;
-        } catch (SQLException e) {
-            Main.debugActive(false,"Could not retrieve current crates count from the Database !!", e);
-            return count;
-        }
-    }
-
     static void loadCrates() {
-        int count = getChestCountInDb();
-        if (count == 0) {
-            ChestSpawner.CreateChestOnStartup();
-            return;
-        }
-
         String sql = "SELECT * FROM `chests`";
 
         try {
             PreparedStatement stmt = Main.con.prepareStatement(sql);
             ResultSet rs = stmt.executeQuery();
+            if (rs.isBeforeFirst()) {
+                ChestSpawner.CreateChestOnStartup();
+                return;
+            }
 
             while (rs.next()) {
                 ChestClass chClass = new ChestClass();
