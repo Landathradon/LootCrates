@@ -123,17 +123,23 @@ public class Database {
 
         Loots loots = new Loots();
 
-        if (Objects.equals(type, "uuid")) {
-
-            String sql = "SELECT * FROM `loots` WHERE `uuid` = ?";
-            loots.uuid = uuid;
+        String sql = "";
+        String forValue = "";
+        if (type.equals("uuid")) {
+            sql = "SELECT * FROM `loots` WHERE `uuid` = ?";
+            forValue = uuid.toString();
+        } else if (type.equals("name")) {
+            sql = "SELECT * FROM `loots` WHERE `name` = ?";
+            forValue = name;
+        }
 
             try {
                 PreparedStatement stmt = Main.con.prepareStatement(sql);
-                stmt.setString(1, uuid.toString());
+                stmt.setString(1, forValue);
                 ResultSet rs = stmt.executeQuery();
 
                 while (rs.next()) {
+                    loots.uuid = UUID.fromString(rs.getString("uuid"));
                     loots.name = rs.getString("name");
                     loots.total = rs.getInt("total_amount");
                     loots.one_star = rs.getInt("one_star");
@@ -141,37 +147,11 @@ public class Database {
                     loots.three_star = rs.getInt("three_star");
                     loots.four_star = rs.getInt("four_star");
                     loots.five_star = rs.getInt("five_star");
-
                 }
             } catch (SQLException e) {
-                Main.debugActive(false, "Could not find anything for this player: " + uuid.toString(), e);
+                Main.debugActive(false, "Could not find anything for this player: " + forValue, e);
             }
 
-        } else if (Objects.equals(type, "name")){
-
-            String sql = "SELECT * FROM `loots` WHERE `name` = ?";
-            loots.name = name;
-
-            try {
-                PreparedStatement stmt = Main.con.prepareStatement(sql);
-                stmt.setString(1, name);
-                ResultSet rs = stmt.executeQuery();
-
-                while (rs.next()) {
-                    loots.uuid = UUID.fromString(rs.getString("uuid"));
-                    loots.total = rs.getInt("total_amount");
-                    loots.one_star = rs.getInt("one_star");
-                    loots.two_star = rs.getInt("two_star");
-                    loots.three_star = rs.getInt("three_star");
-                    loots.four_star = rs.getInt("four_star");
-                    loots.five_star = rs.getInt("five_star");
-
-                }
-            } catch (SQLException e) {
-                Main.debugActive(false, "Could not find anything for this player: " + name, e);
-            }
-
-        }
         return loots;
     }
 
