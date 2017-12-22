@@ -246,33 +246,6 @@ public class Database {
         }
     }
 
-    public static ChestClass getChestFromCoords(Block block){
-        String sql = "SELECT * FROM `chests` WHERE `x`=? AND `y`=? AND `z`=?";
-        ChestClass chClass = new ChestClass();
-        try {
-            PreparedStatement stmt = Main.con.prepareStatement(sql);
-            stmt.setInt(1, block.getX());
-            stmt.setInt(2, block.getY());
-            stmt.setInt(3, block.getZ());
-            ResultSet rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                chClass.world = rs.getString("world");
-                chClass.num = rs.getInt("number");
-                chClass.x = rs.getInt("x");
-                chClass.y = rs.getInt("y");
-                chClass.z = rs.getInt("z");
-                chClass.tier = rs.getInt("tier");
-                chClass.found = rs.getBoolean("found");
-
-            }
-        } catch (SQLException e) {
-            Main.debugActive(false, "Crate Could not be found !!", e);
-        }
-
-        return chClass;
-    }
-
     static void loadCrates() {
         int count = getChestCountInDb();
         if (count == 0) {
@@ -316,19 +289,15 @@ public class Database {
         return cratesMap.get(block);
     }
 
-    public static void removeCrateFromHashMap(Block block){
-        cratesMap.remove(block);
-    }
-
     public static void deleteChest(){
         for (Block block : new HashSet<>(cratesMap.keySet())) {
             Timer.DespawnChest(block, true);
         }
     }
 
-    static void removeChestsFromDb(Block block) {
-
-        ChestClass chClass = getChestFromCoords(block);
+    public static void removeChest(Block block) {
+        cratesMap.remove(block);
+        ChestClass chClass = getCrateFromHashMap(block);
         String sql = "DELETE FROM `chests` WHERE number = ?";
 
         try {

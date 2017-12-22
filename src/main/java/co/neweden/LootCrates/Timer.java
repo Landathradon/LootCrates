@@ -36,8 +36,7 @@ public class Timer{
         Chest ch = (Chest) block.getState();
         ch.getInventory().clear();
         block.getLocation().getBlock().setType(Material.AIR);
-        Database.removeChestsFromDb(block);
-        Database.removeCrateFromHashMap(block);
+        Database.removeChest(block);
         if (!noRespawn) {
             ChestSpawner.newChest();
         }

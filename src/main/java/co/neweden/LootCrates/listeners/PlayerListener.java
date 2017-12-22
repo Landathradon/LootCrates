@@ -79,7 +79,7 @@ public class PlayerListener implements Listener {
             String FoundChest_Colored = ChatColor.translateAlternateColorCodes('&', ConfigRetriever.FoundChest);
             player.sendMessage(FoundChest_Colored);
         }
-        Database.removeCrateFromHashMap(c.getBlock());
+        Database.removeChest(c.getBlock());
         c.getLocation().getBlock().setType(Material.AIR);
         ChestSpawner.newChest();
     }
