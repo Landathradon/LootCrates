@@ -6,13 +6,10 @@ import co.neweden.LootCrates.Database;
 import co.neweden.LootCrates.Main;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandException;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-
-import java.util.UUID;
 
 public class Commands implements CommandExecutor {
     private static Main plugin;
@@ -75,7 +72,6 @@ public class Commands implements CommandExecutor {
             if (sender.hasPermission("lootcrates.player")) {
                 Target target = new Target();
                 target.name = args[1].toLowerCase();
-                //target.uuid = getPlayerUUID(target.name);
                 Database.Loots loots = Database.getPlayerLoots(null, target.name,"name");
                 sender.sendMessage(ChatColor.GOLD + target.name + ChatColor.WHITE + " have a total of " + ChatColor.YELLOW + loots.total + ChatColor.WHITE + " Crates found" +
                 "\nOne Star: " + ChatColor.YELLOW + loots.one_star + ChatColor.WHITE + " | Two Star: " + ChatColor.YELLOW + loots.two_star + ChatColor.WHITE + " | Three Star: " + ChatColor.YELLOW + loots.three_star + ChatColor.WHITE +
@@ -89,8 +85,8 @@ public class Commands implements CommandExecutor {
     private void deleteCratesCom(CommandSender sender) {
         if (sender.hasPermission("lootcrates.delete")) {
             Bukkit.getScheduler().cancelAllTasks();
-            Database.deleteChest();
             int realCount = Database.getCurrentChestsCount();
+            Database.deleteChest();
             String msg = ChatColor.GREEN + " crates have been" + ChatColor.RED + " deleted";
             if(realCount > 0) {
                 sender.sendMessage(ChatColor.YELLOW + String.valueOf(realCount) + msg);
@@ -144,14 +140,7 @@ public class Commands implements CommandExecutor {
                 "/lootcrates reload | This will reload the plugin's config");
     }
 
-//    //Deprecated, might need to change soon
-//    private UUID getPlayerUUID(String name){
-//        OfflinePlayer op = Bukkit.getOfflinePlayer(name);
-//        return op.getUniqueId();
-//    }
-
     private class Target{
         String name;
-        UUID uuid;
     }
 }

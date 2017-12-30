@@ -14,12 +14,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 
 import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.inventory.ItemStack;
-
-import java.util.UUID;
-
-
 
 public class PlayerListener implements Listener {
 
@@ -74,12 +68,6 @@ public class PlayerListener implements Listener {
         ChestSpawner.newChest();
     }
 
-    @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent event){
-        Player player = event.getPlayer();
-        UUID p_uuid = player.getUniqueId();
-        Database.initPlayerChestCount(p_uuid);//add this to onChestClose
-    }
 }
 
 

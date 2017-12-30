@@ -39,7 +39,7 @@ public class Database {
 
         String sql2 = "CREATE TABLE IF NOT EXISTS `chests`(" +
                 " `world` VARCHAR(25) NOT NULL," +
-                " `number` INT(5) UNSIGNED NOT NULL AUTO_INCREMENT," +
+                " `number` INT(5) UNSIGNED AUTO_INCREMENT," +
                 " `x` INT(6) NOT NULL," +
                 " `y` INT(3) NOT NULL," +
                 " `z` INT(6) NOT NULL," +
@@ -80,46 +80,6 @@ public class Database {
             }
     }
 
-    public static void initPlayerChestCount(UUID uuid){
-
-        //get user data
-        String sql = "INSERT INTO `loots` (`name`, `uuid`, `total_amount`, `one_star`, `two_star`, `three_star`, `four_star`, `five_star`) VALUES (?, ?, '0', '0', '0', '0', '0', '0')";
-        String playerName = Bukkit.getPlayer(uuid).getDisplayName();
-        try {
-            PreparedStatement stmt = Main.con.prepareStatement(sql);
-            stmt.setString(1, playerName);
-            stmt.setString(2, uuid.toString());
-            stmt.executeUpdate();
-            Main.debugActive(false,"Added player: " + playerName + " to Database", null);
-        } catch (SQLException e) {
-            boolean chk = checkPlayerName(playerName, uuid);
-            if (!chk) {
-                Main.debugActive(false,"Duplicate player, not adding to Database", null);
-            }
-        }
-    }
-
-    private static boolean checkPlayerName(String name, UUID uuid){
-
-        String sql = "UPDATE `loots` SET `name`= ? WHERE `uuid`= ?";
-        boolean val = false;
-
-        Loots loots = getPlayerLoots(uuid, null , "uuid");
-        if(!loots.name.equalsIgnoreCase(name)){
-            try {
-                PreparedStatement stmt = Main.con.prepareStatement(sql);
-                stmt.setString(1, name);
-                stmt.setString(2, uuid.toString());
-                stmt.executeUpdate();
-                Main.debugActive(false,"Updated player name: " + name + " in Database", null);
-                val =  true;
-            } catch (SQLException e) {
-                Main.debugActive(false,"Player name is the same", null);
-            }
-        }
-        return val;
-    }
-
     public static Loots getPlayerLoots(UUID uuid, String name, String type) {
 
         Loots loots = new Loots();
@@ -158,7 +118,7 @@ public class Database {
 
     public static void chestIsFound(Player player, ChestClass chest) {
 
-        if (!chest.found) return;
+        if (chest.found) return;
 
         Loots loots = getPlayerLoots(player.getUniqueId(), null , "uuid");
 
@@ -169,18 +129,41 @@ public class Database {
 
         Main.debugActive(false, "Crate # " + chest.num + ", Tier: " + chest.tier + " was found by player: " + player.getDisplayName() + "", null);
 
-        //Update current player number of chest found
-        String sql = "UPDATE `loots` SET `total_amount` = ?, `one_star` = ?, `two_star` = ?, `three_star` = ?, `four_star` = ?, `five_star` = ? WHERE `loots`.`uuid` = ?";
+        //Count the First new chest
+        int one = 0;
+        int two = 0;
+        int three = 0;
+        int four = 0;
+        int five = 0;
 
+        if(chest.tier == 1){one++;}
+        if(chest.tier == 2){two++;}
+        if(chest.tier == 3){three++;}
+        if(chest.tier == 4){four++;}
+        if(chest.tier == 5){five++;}
+
+        //Update current player number of chest found
+        String sql =
+                "INSERT INTO `loots` (`name`, `uuid`, `total_amount`, `one_star`, `two_star`, `three_star`, `four_star`, `five_star`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)" +
+                " ON DUPLICATE KEY " +
+                "UPDATE `loots` SET `total_amount` = ?, `one_star` = ?, `two_star` = ?, `three_star` = ?, `four_star` = ?, `five_star` = ? WHERE `uuid` = ?";
         try {
             PreparedStatement stmt = Main.con.prepareStatement(sql);
-            stmt.setInt(1, chCount.total);
-            stmt.setInt(2, chCount.one_star);
-            stmt.setInt(3, chCount.two_star);
-            stmt.setInt(4, chCount.three_star);
-            stmt.setInt(5, chCount.four_star);
-            stmt.setInt(6, chCount.five_star);
-            stmt.setString(7, player.getUniqueId().toString());
+            stmt.setString(1, player.getDisplayName());
+            stmt.setString(2, player.getUniqueId().toString());
+            stmt.setInt(3, 1);
+            stmt.setInt(4, one);
+            stmt.setInt(5, two);
+            stmt.setInt(6, three);
+            stmt.setInt(7, four);
+            stmt.setInt(8, five);
+            stmt.setInt(9, chCount.total);
+            stmt.setInt(10, chCount.one_star);
+            stmt.setInt(11, chCount.two_star);
+            stmt.setInt(12, chCount.three_star);
+            stmt.setInt(13, chCount.four_star);
+            stmt.setInt(14, chCount.five_star);
+            stmt.setString(15, player.getUniqueId().toString());
             stmt.executeUpdate();
             Main.debugActive(false, "Updated player: " + player.getDisplayName() + " Crate data", null);
         } catch (SQLException e) {
@@ -217,7 +200,7 @@ public class Database {
         try {
             PreparedStatement stmt = Main.con.prepareStatement(sql);
             ResultSet rs = stmt.executeQuery();
-            if (rs.isBeforeFirst()) {
+            if (!rs.isBeforeFirst()) {
                 ChestSpawner.CreateChestOnStartup();
                 return;
             }
@@ -259,14 +242,16 @@ public class Database {
     }
 
     public static void removeChest(Block block) {
-        cratesMap.remove(block);
         ChestClass chClass = getCrateFromHashMap(block);
-        String sql = "DELETE FROM `chests` WHERE number = ?";
+        String sql = "DELETE FROM `chests` WHERE `x` = ? AND `y` = ? AND `z` = ?";
 
         try {
             PreparedStatement stmt = Main.con.prepareStatement(sql);
-            stmt.setInt(1, chClass.num);
+            stmt.setInt(1, chClass.x);
+            stmt.setInt(2, chClass.y);
+            stmt.setInt(3, chClass.z);
             stmt.executeUpdate();
+            cratesMap.remove(block);
             Main.debugActive(false, "Crate removed from Database", null);
         } catch (SQLException e) {
             Main.debugActive(false, "Could not remove the crates from the Database !!", e);
