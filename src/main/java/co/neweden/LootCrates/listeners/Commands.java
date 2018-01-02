@@ -72,14 +72,30 @@ public class Commands implements CommandExecutor {
             if (sender.hasPermission("lootcrates.player")) {
                 Target target = new Target();
                 target.name = args[1].toLowerCase();
+                String playerStatsTitle = "--------- " + ChatColor.GOLD + target.name + "'s Stats ";
                 Database.Loots loots = Database.getPlayerLoots(null, target.name,"name");
-                sender.sendMessage(ChatColor.GOLD + target.name + ChatColor.WHITE + " have a total of " + ChatColor.YELLOW + loots.total + ChatColor.WHITE + " Crates found" +
+                sender.sendMessage(ChatColor.GRAY + playerStatsTitle + ChatColor.GRAY + checkSpaceLeft(playerStatsTitle) + ChatColor.WHITE +
+                "\nA total of " + ChatColor.YELLOW + loots.total + ChatColor.WHITE + " Crates were found by this player" +
                 "\nOne Star: " + ChatColor.YELLOW + loots.one_star + ChatColor.WHITE + " | Two Star: " + ChatColor.YELLOW + loots.two_star + ChatColor.WHITE + " | Three Star: " + ChatColor.YELLOW + loots.three_star + ChatColor.WHITE +
-                "\nFour Star: " + ChatColor.YELLOW + loots.four_star + ChatColor.WHITE + " | Five Star: " + ChatColor.YELLOW + loots.five_star);
+                "\nFour Star: " + ChatColor.YELLOW + loots.four_star + ChatColor.WHITE + " | Five Star: " + ChatColor.YELLOW + loots.five_star +
+                ChatColor.GRAY + "\n----------------------------------------------");
             } else {
                 sender.sendMessage(player_perm);
             }
         }
+    }
+
+    private Object checkSpaceLeft(String playerStatsTitle) {
+        int chatWidth = 49;
+        int titleLength = playerStatsTitle.length();
+        int lengthLeft = chatWidth - titleLength;
+        StringBuilder textReturn = new StringBuilder();
+
+        while(lengthLeft >= 0){
+            textReturn.append("-");
+            lengthLeft--;
+        }
+        return textReturn.toString();
     }
 
     private void deleteCratesCom(CommandSender sender) {
@@ -115,7 +131,7 @@ public class Commands implements CommandExecutor {
             } else if (Database.getCurrentChestsCount() == 0) {
                 ChestSpawner.CreateChestOnStartup();
             }
-            sender.sendMessage(ChatColor.GREEN + "Every crates have respawn");
+            sender.sendMessage(ChatColor.GREEN + "Every crates have respawned");
         } else {
             sender.sendMessage(player_perm);
         }

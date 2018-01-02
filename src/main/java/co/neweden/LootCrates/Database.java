@@ -146,7 +146,7 @@ public class Database {
         String sql =
                 "INSERT INTO `loots` (`name`, `uuid`, `total_amount`, `one_star`, `two_star`, `three_star`, `four_star`, `five_star`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)" +
                 " ON DUPLICATE KEY " +
-                "UPDATE `loots` SET `total_amount` = ?, `one_star` = ?, `two_star` = ?, `three_star` = ?, `four_star` = ?, `five_star` = ? WHERE `uuid` = ?";
+                "UPDATE `total_amount` = ?, `one_star` = ?, `two_star` = ?, `three_star` = ?, `four_star` = ?, `five_star` = ?";
         try {
             PreparedStatement stmt = Main.con.prepareStatement(sql);
             stmt.setString(1, player.getDisplayName());
@@ -163,7 +163,6 @@ public class Database {
             stmt.setInt(12, chCount.three_star);
             stmt.setInt(13, chCount.four_star);
             stmt.setInt(14, chCount.five_star);
-            stmt.setString(15, player.getUniqueId().toString());
             stmt.executeUpdate();
             Main.debugActive(false, "Updated player: " + player.getDisplayName() + " Crate data", null);
         } catch (SQLException e) {

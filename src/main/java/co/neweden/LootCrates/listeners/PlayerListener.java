@@ -14,6 +14,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.inventory.ItemStack;
 
 public class PlayerListener implements Listener {
 
@@ -41,13 +42,27 @@ public class PlayerListener implements Listener {
         Database.ChestClass chest = Database.getCrateFromHashMap(c.getBlock()); //Checks if chest is found
         if (chest == null) return;
 
-        String tier1 = "";
+        String specialText = "";
         if (chest.tier == 1) {
-            tier1 = ChatColor.WHITE + " | " + ChatColor.RED + "(╯°□°）╯︵ ┻━┻";
+            specialText = ChatColor.WHITE + " | " + ChatColor.RED + "(╯°□°）╯︵ ┻━┻";
         }
-        String message = ChatColor.GOLD + player.getDisplayName() + ChatColor.GRAY + " has found a " + ChatColor.YELLOW + ChestSpawner.tierCalc(chest.tier) + ChatColor.GRAY + " Crate" + tier1;// + " in " + player.getWorld().getName();
+        String message = ChatColor.GOLD + player.getDisplayName() + ChatColor.GRAY + " has found a " + ChatColor.YELLOW + ChestSpawner.tierCalc(chest.tier) + ChatColor.GRAY + " Crate" + specialText;// + " in " + player.getWorld().getName();
 
-        if (event.getInventory().getContents().length > 0 && chest.found) {
+//        if (event.getInventory().getContents().length > 0 && chest.found) {
+//            //Chest was found by a player | marking it as found
+//            Database.chestIsFound(player,chest);
+//            Bukkit.broadcastMessage(message);
+//            String FoundChest_NB_Colored = ChatColor.translateAlternateColorCodes('&', ConfigRetriever.FoundChest_NB);
+//            player.sendMessage(FoundChest_NB_Colored);
+//            Timer.OnCrateCreated(c.getBlock(), 6000); //6000=5min, 600=30sec
+//            return;
+//        } This is broken
+
+        ItemStack[] items = event.getInventory().getContents();
+        for (ItemStack item : items) {
+            if (item == null) {continue;}
+            //Checks if chest has already been found so it wont display a message twice
+            if (chest.found) {return;}
             //Chest was found by a player | marking it as found
             Database.chestIsFound(player,chest);
             Bukkit.broadcastMessage(message);
@@ -59,6 +74,7 @@ public class PlayerListener implements Listener {
 
         //Run code to execute if the chest is empty
         if(!chest.found){
+            Database.chestIsFound(player,chest);
             Bukkit.broadcastMessage(message);
             String FoundChest_Colored = ChatColor.translateAlternateColorCodes('&', ConfigRetriever.FoundChest);
             player.sendMessage(FoundChest_Colored);
