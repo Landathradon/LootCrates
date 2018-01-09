@@ -57,6 +57,7 @@ public class ConfigRetriever {
 
     //Retrieving everything from the Config.yml File
     public static void getConfigStuff() {
+        Main.getPlugin().saveDefaultConfig();
         Configuration config = Main.getPlugin().getConfig();
 
         //retrieving items from the config
