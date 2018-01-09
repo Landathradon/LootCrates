@@ -22,7 +22,7 @@ public class Timer {
     }
 
     private static Block getRandomChestToDespawn() {
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 50; i++) {
             Object[] blocks = Database.cratesMap.keySet().toArray();
             int index = random.nextInt(blocks.length);
             if (index <= 0) return null;
