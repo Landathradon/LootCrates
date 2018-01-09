@@ -56,7 +56,7 @@ public class Main extends JavaPlugin implements Listener {
 
     @Override
     public void onDisable() {
-        Bukkit.getScheduler().cancelAllTasks();
+        Bukkit.getScheduler().cancelTasks(this);
         ConfigRetriever.checkConfig(false);
         if (!Disabled) {
 
