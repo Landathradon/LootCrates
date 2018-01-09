@@ -115,7 +115,7 @@ public class ChestSpawner {
     public static void CreateChestOnStartup() {
 
         // Checks if we haven't spawned too many Crates
-        while (Database.getCurrentChestsCount() < ConfigRetriever.MaxCrates) {
+        for (int i = 0; i < ConfigRetriever.MaxCrates; i++) {
             newChest();
         }
         Main.debugActive(true,(Database.getCurrentChestsCount()) + " Crates have been spawned", null);
