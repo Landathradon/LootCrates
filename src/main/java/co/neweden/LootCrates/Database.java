@@ -126,6 +126,7 @@ public class Database {
 
         //Mark the chest as found
         chest.found = true;
+        // todo: Chest is not makred as found in the database
 
         Main.debugActive(false, "Crate # " + chest.num + ", Tier: " + chest.tier + " was found by player: " + player.getDisplayName() + "", null);
 
