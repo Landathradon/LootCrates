@@ -15,9 +15,11 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 
 public class Main extends JavaPlugin implements Listener {
-    private static Plugin plugin;
+    private static Main plugin;
     static Connection con;
     private static boolean Disabled;
+
+    public static Main getPlugin() { return plugin; }
 
     // When the plugin load/unload
     @Override
@@ -40,7 +42,6 @@ public class Main extends JavaPlugin implements Listener {
     private void startup() {
         saveDefaultConfig();
         registerEvents();
-        Timer timer = new Timer(this);
         Commands commands = new Commands(this);
 
         try {

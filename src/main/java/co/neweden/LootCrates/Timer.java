@@ -5,17 +5,12 @@ import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 
 public class Timer{
-    private static Main plugin;
-
-    Timer(Main pl) {
-        plugin = pl;
-    }
 
     static void OnCrateCreated(Block block){
         long GameTicks = Chances.randomDespawnTime();
         Main.debugActive(false,"The crate is about to despawn in: " + (GameTicks/20)  + " secs", null);
 
-        Bukkit.getScheduler().runTaskLater(plugin, () ->
+        Bukkit.getScheduler().runTaskLater(Main.getPlugin(), () ->
                 DespawnChest(block, false),GameTicks);
 
     }
@@ -23,7 +18,7 @@ public class Timer{
     public static void OnCrateCreated(Block block, long timeWanted) {
         Main.debugActive(false, "The crate is about to despawn in: " + (timeWanted / 20) + " secs", null);
 
-        Bukkit.getScheduler().runTaskLater(plugin, () ->
+        Bukkit.getScheduler().runTaskLater(Main.getPlugin(), () ->
                 DespawnChest(block, false), timeWanted);
 
     }
