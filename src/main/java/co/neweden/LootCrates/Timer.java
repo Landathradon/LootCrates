@@ -4,22 +4,40 @@ import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 
-public class Timer{
+import java.util.*;
 
-    static void OnCrateCreated(Block block){
-        long GameTicks = Chances.randomDespawnTime();
-        Main.debugActive(false,"The crate is about to despawn in: " + (GameTicks/20)  + " secs", null);
+public class Timer {
 
-        Bukkit.getScheduler().runTaskLater(Main.getPlugin(), () ->
-                DespawnChest(block, false),GameTicks);
+    private static Random random = new Random();
 
+    static void startDeSpawnTimer() {
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(Main.getPlugin(), new Runnable() {
+            @Override
+            public void run() {
+                Block block = getRandomChestToDespawn();
+                if (block == null) return;
+                DespawnChest(block, false);
+            }
+        }, 0L, ConfigRetriever.RespawnFrequency);
     }
 
-    public static void OnCrateCreated(Block block, long timeWanted) {
-        Main.debugActive(false, "The crate is about to despawn in: " + (timeWanted / 20) + " secs", null);
+    private static Block getRandomChestToDespawn() {
+        for (int i = 0; i < 20; i++) {
+            Object[] blocks = Database.cratesMap.keySet().toArray();
+            int index = random.nextInt(blocks.length);
+            if (index <= 0) return null;
+            Block block = (Block) blocks[index];
+            if (!Database.cratesMap.get(block).found)
+                return block;
+        }
+        return null;
+    }
+
+    public static void despawnCountdown(Block block, long ticks) {
+        Main.debugActive(false, "The crate is about to despawn in: " + (ticks / 20) + " secs", null);
 
         Bukkit.getScheduler().runTaskLater(Main.getPlugin(), () ->
-                DespawnChest(block, false), timeWanted);
+                DespawnChest(block, false), ticks);
 
     }
 

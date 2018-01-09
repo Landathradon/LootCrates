@@ -97,7 +97,6 @@ public class ChestSpawner {
                     Database.addChestToDatabase(chClass.world, chestLoc.getBlock(), chClass.tier);
                     Database.cratesMap.put(chestLoc.getBlock(), chClass);
                     Main.debugActive(false, "A Special Chest Tier " + tier + " has spawned | Try: " + retry, null);
-                    Timer.OnCrateCreated(chestLoc.getBlock());
 
                 return;
             }

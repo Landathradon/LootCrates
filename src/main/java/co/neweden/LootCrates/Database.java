@@ -220,11 +220,8 @@ public class Database {
                 Block block = new Location(world, chClass.x, chClass.y, chClass.z).getBlock();
                 Main.debugActive(false, "A Special Chest #" + chClass.num + ", Tier " + chClass.tier + " was spawned", null);
                 cratesMap.put(block, chClass);
-                if(chClass.found){
-                    Timer.OnCrateCreated(block, 6000); //6000=5min, 600=30sec
-                }else {
-                    Timer.OnCrateCreated(block);
-                }
+                if (chClass.found)
+                    Timer.despawnCountdown(block, 6000); //6000=5min, 600=30sec
             }
         } catch (SQLException e) {
             Main.debugActive(false, "Could not retrieve crate data !!!", e);

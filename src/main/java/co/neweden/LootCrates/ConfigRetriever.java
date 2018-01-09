@@ -35,6 +35,7 @@ public class ConfigRetriever {
     static int MaxCrates;
     static double MaxSpawnTime;
     static double MinSpawnTime;
+    static int RespawnFrequency;
     public static String lootcratesPrefix = ChatColor.GRAY + "[" + ChatColor.GOLD + "LootCrates" + ChatColor.GRAY + "] ";
 
     //Messages
@@ -129,6 +130,7 @@ public class ConfigRetriever {
         MaxCrates = config.getInt("Crates.max-amount");
         MaxSpawnTime = config.getDouble("Crates.max-spawned-time");
         MinSpawnTime = config.getDouble("Crates.min-spawned-time");
+        RespawnFrequency = config.getInt("Crates.respawn-frequency", 360);
 
         //Max Distance Allowed
         max_x = config.getInt("Crates.max-x-distance");

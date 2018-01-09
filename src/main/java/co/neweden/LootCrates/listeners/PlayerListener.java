@@ -52,7 +52,7 @@ public class PlayerListener implements Listener {
             // Chest was found but still has items
             String FoundChest_NB_Colored = ChatColor.translateAlternateColorCodes('&', ConfigRetriever.FoundChest_NB);
             player.sendMessage(FoundChest_NB_Colored);
-            Timer.OnCrateCreated(c.getBlock(), 6000); //6000=5min, 600=30sec
+            Timer.despawnCountdown(c.getBlock(), 6000); //6000=5min, 600=30sec
         }
 
         if (itemsLeft <= 0) {
