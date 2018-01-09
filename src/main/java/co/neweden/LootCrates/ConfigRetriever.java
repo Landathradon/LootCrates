@@ -85,11 +85,11 @@ public class ConfigRetriever {
         BreakChest = config.getString("Messages.Break-Chest");
 
         //MYSQL config
-        username = config.getString("mysql.username");
-        password = config.getString("mysql.password");
+        username = config.getString("mysql.username", "");
+        password = config.getString("mysql.password", "");
         port = config.getString("mysql.port");
-        host = config.getString("mysql.host");
-        database = config.getString("mysql.database");
+        host = config.getString("mysql.host", "");
+        database = config.getString("mysql.database", "");
 
         //adding the items to their rarity list
         //One Star Crate List
