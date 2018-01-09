@@ -42,7 +42,6 @@ public class Main extends JavaPlugin implements Listener {
     private void startup() {
         saveDefaultConfig();
         registerEvents();
-        Commands commands = new Commands(this);
 
         try {
             con = Database.getConnection();
