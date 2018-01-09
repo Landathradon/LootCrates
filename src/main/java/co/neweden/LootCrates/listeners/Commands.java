@@ -124,7 +124,7 @@ public class Commands implements CommandExecutor {
 
     private void respawnCratesCom(CommandSender sender) {
         if (sender.hasPermission("lootcrates.respawn")) {
-            Bukkit.getScheduler().cancelAllTasks();
+            Bukkit.getScheduler().cancelTasks(plugin);
             if (Database.getCurrentChestsCount() > 0) {
                 Database.deleteChest();
                 ChestSpawner.CreateChestOnStartup();
