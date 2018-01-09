@@ -31,7 +31,6 @@ public class Main extends JavaPlugin implements Listener {
         this.getCommand("LootCrates").setExecutor(cmd);
 
         //noinspection unused
-        ConfigRetriever cfr = new ConfigRetriever(this);
         ConfigRetriever.getConfigStuff();
         ConfigRetriever.checkConfig(true);
         if (!Disabled) {

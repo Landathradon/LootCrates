@@ -55,14 +55,9 @@ public class ConfigRetriever {
     static ArrayList<Material> FourStar = new ArrayList<>();
     static ArrayList<Material> FiveStar = new ArrayList<>();
 
-    private static Main plugin;
-    ConfigRetriever(Main pl) {
-            plugin = pl;
-        }
-
     //Retrieving everything from the Config.yml File
     public static void getConfigStuff() {
-        Configuration config = plugin.getConfig();
+        Configuration config = Main.getPlugin().getConfig();
 
         //retrieving items from the config
         List<String> listOneStar = config.getStringList("Items.One-Star.Items");
