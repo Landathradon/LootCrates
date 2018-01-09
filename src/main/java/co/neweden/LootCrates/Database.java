@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 
 import java.sql.*;
 import java.util.*;
+import java.util.logging.Level;
 
 public class Database {
 
@@ -116,17 +117,24 @@ public class Database {
         return loots;
     }
 
-    public static void chestIsFound(Player player, ChestClass chest) {
+    public static boolean chestIsFound(Player player, ChestClass chest) {
 
-        if (chest.found) return;
+        if (chest.found) return true;
 
         Loots loots = getPlayerLoots(player.getUniqueId(), null , "uuid");
 
         ChestCount chCount = addPlayerChestCount(chest.tier, loots.total, loots.one_star, loots.two_star, loots.three_star, loots.four_star, loots.five_star);
 
         //Mark the chest as found
+        try {
+            PreparedStatement st = Main.con.prepareStatement("UPDATE `chests` SET found=1 WHERE number=?");
+            st.setInt(1, chest.num);
+            st.executeUpdate();
+        } catch (SQLException e) {
+            Main.getPlugin().getLogger().log(Level.SEVERE, "An SQL Exception occurred while setting column found to 1 Crate #" + chest.num, e);
+            return false;
+        }
         chest.found = true;
-        // todo: Chest is not makred as found in the database
 
         Main.debugActive(false, "Crate # " + chest.num + ", Tier: " + chest.tier + " was found by player: " + player.getDisplayName() + "", null);
 
@@ -168,7 +176,9 @@ public class Database {
             Main.debugActive(false, "Updated player: " + player.getDisplayName() + " Crate data", null);
         } catch (SQLException e) {
             Main.debugActive(false, "Could not update player: " + player.getDisplayName() + " Crate data!!", e);
+            return false;
         }
+        return true;
     }
 
     private static ChestCount addPlayerChestCount(int tier, int tot, int one, int two, int three, int four, int five){

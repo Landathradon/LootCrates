@@ -68,6 +68,12 @@ public class PlayerListener implements Listener {
 
         if (chest.found) return;
 
+        // mark chest as found and update player statistics
+        if (!Database.chestIsFound(player,chest)) {
+            event.getPlayer().sendMessage(ChatColor.RED + "An error occurred while updating this Crate, please contact a member of staff.");
+            return;
+        }
+
         // Construct broadcast message
         String specialText = "";
         if (chest.tier == 1) {
@@ -75,9 +81,6 @@ public class PlayerListener implements Listener {
         }
         String message = ChatColor.GOLD + player.getDisplayName() + ChatColor.GRAY + " has found a " + ChatColor.YELLOW + ChestSpawner.tierCalc(chest.tier) + ChatColor.GRAY + " Crate" + specialText;// + " in " + player.getWorld().getName();
         Bukkit.broadcastMessage(message);
-
-        // mark chest as found and update player statistics
-        Database.chestIsFound(player,chest);
     }
 
 }
