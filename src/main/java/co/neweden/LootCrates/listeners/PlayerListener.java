@@ -1,9 +1,6 @@
 package co.neweden.LootCrates.listeners;
 
-import co.neweden.LootCrates.ChestSpawner;
-import co.neweden.LootCrates.ConfigRetriever;
-import co.neweden.LootCrates.Database;
-import co.neweden.LootCrates.Timer;
+import co.neweden.LootCrates.*;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
@@ -61,6 +58,7 @@ public class PlayerListener implements Listener {
                 String FoundChest_Colored = ChatColor.translateAlternateColorCodes('&', ConfigRetriever.FoundChest);
                 player.sendMessage(FoundChest_Colored);
             }
+            ChestSpawner.CrateNameTagOverlay(c.getLocation(), null, false);
             Database.removeChest(c.getBlock());
             c.getLocation().getBlock().setType(Material.AIR);
             ChestSpawner.newChest();
@@ -75,10 +73,7 @@ public class PlayerListener implements Listener {
         }
 
         // Construct broadcast message
-        String specialText = "";
-        if (chest.tier == 1) {
-            specialText = ChatColor.WHITE + " | " + ChatColor.RED + "(╯°□°）╯︵ ┻━┻";
-        }
+        String specialText = ChestSpawner.addSpecialEffectToBroadcast(chest.tier,event.getInventory().getLocation());
         String message = ChatColor.GOLD + player.getDisplayName() + ChatColor.GRAY + " has found a " + ChatColor.YELLOW + ChestSpawner.tierCalc(chest.tier) + ChatColor.GRAY + " Crate" + specialText;// + " in " + player.getWorld().getName();
         Bukkit.broadcastMessage(message);
     }

@@ -2,6 +2,8 @@ package co.neweden.LootCrates;
 
 import org.bukkit.*;
 import org.bukkit.block.Chest;
+import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -74,8 +76,11 @@ public class ChestSpawner {
 
                     chestLoc.getBlock().setType(Material.CHEST);
                     Chest chest = (Chest) chestLoc.getBlock().getState();
-                    chest.setCustomName(ChatColor.GREEN + ChestName);
+                    chest.setCustomName(ChatColor.GREEN + "LootCrates " + ChatColor.YELLOW + tierCalc(tier));
+                    chest.update();
+
                     Inventory ChestInv = chest.getInventory();
+                    CrateNameTagOverlay(chestLoc, ChestName, true);
 
                     while (chestItemInt < ItemAmount) {
                         Material ItemReceived = Chances.randomItems(tier);
@@ -151,6 +156,23 @@ public class ChestSpawner {
         }
     }
 
+    public static void CrateNameTagOverlay(Location loc, String name, boolean state){
+        World w = loc.getWorld();
+        Location armorStandLoc = new Location(w,loc.getX()+0.5,loc.getY()-0.5,loc.getZ()+0.5);
+        ArmorStand as = (ArmorStand) w.spawnEntity(armorStandLoc, EntityType.ARMOR_STAND);
+
+        if(!state) {
+            //when the chest is removed, remove the Armor Stand
+            as.remove(); //Need to check how to remove this because it does not work
+        } else {
+            as.setVisible(false);
+            as.setInvulnerable(true);
+            as.setCustomName(ChatColor.AQUA + name);
+            as.setCustomNameVisible(true);
+            as.setGravity(false);
+        }
+    }
+
     public static String tierCalc(int tier){
         String value = "Null";
         if (tier == 1){
@@ -170,4 +192,28 @@ public class ChestSpawner {
         }
         return value;
     }
+
+    public static String addSpecialEffectToBroadcast(int tier, Location loc){
+        String specialText = "";
+        if (tier == 1) {
+            specialText = ChatColor.WHITE + " | " + ChatColor.RED + "(╥﹏╥)";
+        }
+        else if(tier == 2){
+            specialText = ChatColor.WHITE + " | " + ChatColor.RED + "(╯°□°）╯︵ ┻━┻";
+        }
+        else if(tier == 3){
+            specialText = ChatColor.WHITE + " | " + ChatColor.YELLOW + "¯\\_(シ)_/¯";
+        }
+        else if(tier == 4){
+            specialText = ChatColor.WHITE + " | " + ChatColor.YELLOW + "(づ￣ ³￣)づ";
+        }
+        else if (tier == 5){
+            //Will spawn 20 fireworks when it's found
+            Location newLoc = new Location(loc.getWorld(),loc.getX()+0.5,loc.getY(),loc.getZ()+0.5);
+            Fireworks.randomFireworks(newLoc,null,20);
+            specialText = ChatColor.WHITE + " | " + ChatColor.GREEN + "ლ(╹◡╹ლ)";
+        }
+        return specialText;
+    }
+
 }

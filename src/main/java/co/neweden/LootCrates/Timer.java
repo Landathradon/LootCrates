@@ -48,6 +48,7 @@ public class Timer {
         //Despawn Chests
         Chest ch = (Chest) block.getState();
         ch.getInventory().clear();
+        ChestSpawner.CrateNameTagOverlay(block.getLocation(), null, false);
         block.getLocation().getBlock().setType(Material.AIR);
         Database.removeChest(block);
         if (!noRespawn) {
