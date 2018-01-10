@@ -1,7 +1,6 @@
 package co.neweden.LootCrates.listeners;
 
 import co.neweden.LootCrates.ChestSpawner;
-import co.neweden.LootCrates.ConfigRetriever;
 import co.neweden.LootCrates.Database;
 import co.neweden.LootCrates.Main;
 import org.bukkit.Bukkit;
@@ -139,9 +138,10 @@ public class Commands implements CommandExecutor {
 
     private void reloadCom(CommandSender sender) {
         if (sender.hasPermission("lootcrates.reload")) {
+            plugin.onDisable();
             plugin.reloadConfig();
-            ConfigRetriever.getConfigStuff();
-            ConfigRetriever.checkConfig(true);
+            plugin.onEnable();
+            sender.sendMessage("Plugin reloaded");
             sender.sendMessage(ChatColor.GREEN + "[LootCrates] Config reloaded!");
         }
     }
