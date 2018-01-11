@@ -11,7 +11,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 public class ChestSpawner {
 
     //Spawn a chest with specified items and names
-    private static void SpawnChest(int luck){
+    private static void SpawnChest(int luck, World w){
         String ChestName = "Chest";
         int ItemAmount = 0;
         //One Star loot config Setup
@@ -39,21 +39,20 @@ public class ChestSpawner {
             ChestName = "Special Super Rare Loot ☆☆☆☆☆";
             ItemAmount = Chances.getRandomAmountItems(5);
         }
-        checkBelowChestAndPlace(ChestName,ItemAmount, luck);
+        checkBelowChestAndPlace(ChestName,ItemAmount, luck, w);
     }
 
-    private static void checkBelowChestAndPlace(String ChestName, int ItemAmount, int tier) {
+    private static void checkBelowChestAndPlace(String ChestName, int ItemAmount, int tier, World w) {
 
         //Checks if there is no water or lava below chest
-        World w = Bukkit.getWorld(ConfigRetriever.WorldConfig);
         int retryLimit = 50;
         int chestItemInt = 0;
         for (int retry = 0; retry < retryLimit; retry++) { // We don't want this running indefinitely
 
             int x = Chances.RandomLocationX();
             int z = Chances.RandomLocationZ();
-            int y = Chances.getHighestBlockYAt(x, z); // MUST BE ON TOP OF GROUND
-            if (Chances.getRealCoords(x, z) != null) continue;
+            int y = Chances.getHighestBlockYAt(x, z, w); // MUST BE ON TOP OF GROUND
+            if (Chances.getRealCoords(x, z, w) != null) continue;
 
             Location chestLoc = new Location(w, x, y, z);
             Material belowBlock = new Location(chestLoc.getWorld(), chestLoc.getX(), chestLoc.getY() - 1, chestLoc.getZ()).getBlock().getType();
@@ -100,7 +99,7 @@ public class ChestSpawner {
                     chClass.found = false;
 
                     Database.addChestToDatabase(chClass.world, chestLoc.getBlock(), chClass.tier);
-                    Database.cratesMap.put(chestLoc.getBlock(), chClass);
+                    Database.storeCrate(chestLoc.getBlock(), chClass);
                     Main.debugActive(false, "A Special Chest Tier " + tier + " has spawned | Try: " + retry, null);
 
                 return;
@@ -116,43 +115,43 @@ public class ChestSpawner {
         if(!world.isChunkLoaded(chunk)) world.loadChunk(chunk);
     }
 
-    public static void CreateChestOnStartup() {
+    public static void CreateChestOnStartup(World w) {
 
         // Checks if we haven't spawned too many Crates
         for (int i = 0; i < ConfigRetriever.MaxCrates; i++) {
-            newChest();
+            newChest(w);
         }
         Main.debugActive(true,(Database.getCurrentChestsCount()) + " Crates have been spawned", null);
     }
 
-    public static void newChest(){
+    public static void newChest(World w){
 
         double chance = Chances.ChanceCalc();
 
         // 5% chance Five Star
         if (chance <= 5) {
             Main.debugActive(false,"Chance: " + chance + " %", null);
-            SpawnChest(5);
+            SpawnChest(5, w);
         }
         // 15% chance Four Star
         else if (chance > 5 && chance <= 20) {
             Main.debugActive(false,"Chance: " + chance + " %", null);
-            SpawnChest(4);
+            SpawnChest(4, w);
         }
         // 20% chance Three Star
         else if (chance > 20 && chance <= 40){
             Main.debugActive(false,"Chance: " + chance + " %", null);
-            SpawnChest(3);
+            SpawnChest(3, w);
         }
         // 25% chance Two Star
         else if (chance > 40 && chance <= 65){
             Main.debugActive(false,"Chance: " + chance + " %", null);
-            SpawnChest(2);
+            SpawnChest(2, w);
         }
         // 35% chance One Star
         else {
             Main.debugActive(false,"Chance: " + chance + " %", null);
-            SpawnChest(1);
+            SpawnChest(1, w);
         }
     }
 

@@ -41,17 +41,14 @@ class Chances {
     }
 
     //Will calculate if the coords are within any protected areas
-    static LandClaim getRealCoords(int x, int z) {
-
-        World w = Bukkit.getWorld(ConfigRetriever.WorldConfig);
+    static LandClaim getRealCoords(int x, int z, World w) {
         Location loc = new Location(w, x, 0, z);
         Chunk chunk = loc.getChunk();
 
         return LandManager.getLandClaim(chunk);
     }
 
-    static int getHighestBlockYAt(int x, int z) {
-        World w = Bukkit.getWorld(ConfigRetriever.WorldConfig);
+    static int getHighestBlockYAt(int x, int z, World w) {
         ChestSpawner.ensureChunkLoaded(x,z,w);
         return w.getHighestBlockYAt(x,z);
     }

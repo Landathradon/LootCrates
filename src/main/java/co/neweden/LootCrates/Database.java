@@ -13,20 +13,20 @@ import java.util.logging.Level;
 public class Database {
 
     private static Connection connection = null;
-    static Map<Block, ChestClass> cratesMap = new HashMap<>();
+    static Map<World, Map<Block, ChestClass>> cratesMap = new HashMap<>();
 
     static Connection getConnection() throws SQLException {
 
-        try{
-            connection = DriverManager.getConnection("jdbc:mysql://"+ConfigRetriever.host+":"+ConfigRetriever.port+"/"+ConfigRetriever.database+"?autoReconnect=true", ConfigRetriever.username, ConfigRetriever.password);
+        try {
+            connection = DriverManager.getConnection("jdbc:mysql://" + ConfigRetriever.host + ":" + ConfigRetriever.port + "/" + ConfigRetriever.database + "?autoReconnect=true", ConfigRetriever.username, ConfigRetriever.password);
 
-            } catch(SQLException e){
-            Main.debugActive(true,"Database connection failed!! Please verify your MYSQL Config !!", e);
-            }
+        } catch (SQLException e) {
+            Main.debugActive(true, "Database connection failed!! Please verify your MYSQL Config !!", e);
+        }
         return connection;
     }
 
-    static void initDatabase(){
+    static void initDatabase() {
         String sql = "CREATE TABLE IF NOT EXISTS `loots` (" +
                 "    `name` VARCHAR(48) NOT NULL," +
                 "    `uuid` VARCHAR(48) NOT NULL," +
@@ -51,34 +51,34 @@ public class Database {
             PreparedStatement stmt = Main.con.prepareStatement(sql);
             stmt.executeUpdate();
         } catch (SQLException e) {
-            Main.debugActive(true,"Could not Create loots Table!! Please verify your MYSQL Config !!", e);
+            Main.debugActive(true, "Could not Create loots Table!! Please verify your MYSQL Config !!", e);
         }
         try {
             PreparedStatement stmt2 = Main.con.prepareStatement(sql2);
             stmt2.executeUpdate();
-            Main.debugActive(false,"Database init() Verified", null);
+            Main.debugActive(false, "Database init() Verified", null);
         } catch (SQLException e) {
-            Main.debugActive(true,"Could not Create chests Table!! Please verify your MYSQL Config !!", e);
+            Main.debugActive(true, "Could not Create chests Table!! Please verify your MYSQL Config !!", e);
         }
     }
 
-    static void addChestToDatabase(String w, Block block, int tier){
+    static void addChestToDatabase(String w, Block block, int tier) {
 
-            String sql = "INSERT INTO `chests` (`world`, `x`, `y`, `z`, `tier`, `found`) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO `chests` (`world`, `x`, `y`, `z`, `tier`, `found`) VALUES (?, ?, ?, ?, ?, ?)";
 
-            try {
-                PreparedStatement stmt = Main.con.prepareStatement(sql);
-                stmt.setString(1, w);
-                stmt.setInt(2, block.getX());
-                stmt.setInt(3, block.getY());
-                stmt.setInt(4, block.getZ());
-                stmt.setInt(5, tier);
-                stmt.setBoolean(6, false);
-                stmt.executeUpdate();
-                Main.debugActive(false, "Crate Added to Database", null);
-            } catch (SQLException e) {
-                Main.debugActive(false, "Crate Could not be added !!", e);
-            }
+        try {
+            PreparedStatement stmt = Main.con.prepareStatement(sql);
+            stmt.setString(1, w);
+            stmt.setInt(2, block.getX());
+            stmt.setInt(3, block.getY());
+            stmt.setInt(4, block.getZ());
+            stmt.setInt(5, tier);
+            stmt.setBoolean(6, false);
+            stmt.executeUpdate();
+            Main.debugActive(false, "Crate Added to Database", null);
+        } catch (SQLException e) {
+            Main.debugActive(false, "Crate Could not be added !!", e);
+        }
     }
 
     public static Loots getPlayerLoots(UUID uuid, String name, String type) {
@@ -95,24 +95,24 @@ public class Database {
             forValue = name;
         }
 
-            try {
-                PreparedStatement stmt = Main.con.prepareStatement(sql);
-                stmt.setString(1, forValue);
-                ResultSet rs = stmt.executeQuery();
+        try {
+            PreparedStatement stmt = Main.con.prepareStatement(sql);
+            stmt.setString(1, forValue);
+            ResultSet rs = stmt.executeQuery();
 
-                while (rs.next()) {
-                    loots.uuid = UUID.fromString(rs.getString("uuid"));
-                    loots.name = rs.getString("name");
-                    loots.total = rs.getInt("total_amount");
-                    loots.one_star = rs.getInt("one_star");
-                    loots.two_star = rs.getInt("two_star");
-                    loots.three_star = rs.getInt("three_star");
-                    loots.four_star = rs.getInt("four_star");
-                    loots.five_star = rs.getInt("five_star");
-                }
-            } catch (SQLException e) {
-                Main.debugActive(false, "Could not find anything for this player: " + forValue, e);
+            while (rs.next()) {
+                loots.uuid = UUID.fromString(rs.getString("uuid"));
+                loots.name = rs.getString("name");
+                loots.total = rs.getInt("total_amount");
+                loots.one_star = rs.getInt("one_star");
+                loots.two_star = rs.getInt("two_star");
+                loots.three_star = rs.getInt("three_star");
+                loots.four_star = rs.getInt("four_star");
+                loots.five_star = rs.getInt("five_star");
             }
+        } catch (SQLException e) {
+            Main.debugActive(false, "Could not find anything for this player: " + forValue, e);
+        }
 
         return loots;
     }
@@ -121,7 +121,7 @@ public class Database {
 
         if (chest.found) return true;
 
-        Loots loots = getPlayerLoots(player.getUniqueId(), null , "uuid");
+        Loots loots = getPlayerLoots(player.getUniqueId(), null, "uuid");
 
         ChestCount chCount = addPlayerChestCount(chest.tier, loots.total, loots.one_star, loots.two_star, loots.three_star, loots.four_star, loots.five_star);
 
@@ -145,17 +145,27 @@ public class Database {
         int four = 0;
         int five = 0;
 
-        if(chest.tier == 1){one++;}
-        if(chest.tier == 2){two++;}
-        if(chest.tier == 3){three++;}
-        if(chest.tier == 4){four++;}
-        if(chest.tier == 5){five++;}
+        if (chest.tier == 1) {
+            one++;
+        }
+        if (chest.tier == 2) {
+            two++;
+        }
+        if (chest.tier == 3) {
+            three++;
+        }
+        if (chest.tier == 4) {
+            four++;
+        }
+        if (chest.tier == 5) {
+            five++;
+        }
 
         //Update current player number of chest found
         String sql =
                 "INSERT INTO `loots` (`name`, `uuid`, `total_amount`, `one_star`, `two_star`, `three_star`, `four_star`, `five_star`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)" +
-                " ON DUPLICATE KEY " +
-                "UPDATE `total_amount` = ?, `one_star` = ?, `two_star` = ?, `three_star` = ?, `four_star` = ?, `five_star` = ?";
+                        " ON DUPLICATE KEY " +
+                        "UPDATE `total_amount` = ?, `one_star` = ?, `two_star` = ?, `three_star` = ?, `four_star` = ?, `five_star` = ?";
         try {
             PreparedStatement stmt = Main.con.prepareStatement(sql);
             stmt.setString(1, player.getDisplayName());
@@ -181,7 +191,7 @@ public class Database {
         return true;
     }
 
-    private static ChestCount addPlayerChestCount(int tier, int tot, int one, int two, int three, int four, int five){
+    private static ChestCount addPlayerChestCount(int tier, int tot, int one, int two, int three, int four, int five) {
 
         ChestCount chCount = new ChestCount();
         chCount.total = tot;
@@ -191,27 +201,42 @@ public class Database {
         chCount.four_star = four;
         chCount.five_star = five;
 
-        if(tier == 1){chCount.total++;chCount.one_star++;}
-        if(tier == 2){chCount.total++;chCount.two_star++;}
-        if(tier == 3){chCount.total++;chCount.three_star++;}
-        if(tier == 4){chCount.total++;chCount.four_star++;}
-        if(tier == 5){chCount.total++;chCount.five_star++;}
+        if (tier == 1) {
+            chCount.total++;
+            chCount.one_star++;
+        }
+        if (tier == 2) {
+            chCount.total++;
+            chCount.two_star++;
+        }
+        if (tier == 3) {
+            chCount.total++;
+            chCount.three_star++;
+        }
+        if (tier == 4) {
+            chCount.total++;
+            chCount.four_star++;
+        }
+        if (tier == 5) {
+            chCount.total++;
+            chCount.five_star++;
+        }
 
         return chCount;
     }
 
-    public static int getCurrentChestsCount(){
+    public static int getCurrentChestsCount() {
         return cratesMap.size();
     }
 
-    static void loadCrates() {
+    static void loadCrates(World w) {
         String sql = "SELECT * FROM `chests`";
 
         try {
             PreparedStatement stmt = Main.con.prepareStatement(sql);
             ResultSet rs = stmt.executeQuery();
             if (!rs.isBeforeFirst()) {
-                ChestSpawner.CreateChestOnStartup();
+                ChestSpawner.CreateChestOnStartup(w);
                 return;
             }
 
@@ -229,7 +254,7 @@ public class Database {
                 if (world == null) continue;
                 Block block = new Location(world, chClass.x, chClass.y, chClass.z).getBlock();
                 Main.debugActive(false, "A Special Chest #" + chClass.num + ", Tier " + chClass.tier + " was spawned", null);
-                cratesMap.put(block, chClass);
+                storeCrate(block, chClass);
                 if (chClass.found)
                     Timer.despawnCountdown(block, 6000); //6000=5min, 600=30sec
             }
@@ -238,18 +263,30 @@ public class Database {
         }
     }
 
-    public static ChestClass getCrateFromHashMap(Block block) {
-        return cratesMap.get(block);
-    }
-
-    public static void deleteChest(){
-        for (Block block : new HashSet<>(cratesMap.keySet())) {
+    public static void deleteChest(World world) {
+        for (Block block : new HashSet<>(cratesMap.get(world).keySet())) {
             Timer.DespawnChest(block, true);
         }
     }
 
+    static void storeCrate(Block block, ChestClass crate) {
+        if (cratesMap.containsKey(block.getWorld())) {
+            cratesMap.get(block.getWorld()).put(block, crate);
+        } else {
+            Map<Block, ChestClass> crates = new HashMap<>();
+            crates.put(block, crate);
+            cratesMap.put(block.getWorld(), crates);
+        }
+    }
+
+    public static ChestClass getCrate(Block block) {
+        World world = block.getWorld();
+        if (world == null) return null;
+        else return cratesMap.get(world).get(block);
+    }
+
     public static void removeChest(Block block) {
-        ChestClass chClass = getCrateFromHashMap(block);
+        ChestClass chClass = getCrate(block);
         String sql = "DELETE FROM `chests` WHERE `x` = ? AND `y` = ? AND `z` = ?";
 
         try {
@@ -258,11 +295,18 @@ public class Database {
             stmt.setInt(2, chClass.y);
             stmt.setInt(3, chClass.z);
             stmt.executeUpdate();
-            cratesMap.remove(block);
+            removeFromMap(block);
             Main.debugActive(false, "Crate removed from Database", null);
         } catch (SQLException e) {
             Main.debugActive(false, "Could not remove the crates from the Database !!", e);
         }
+    }
+
+    private static void removeFromMap(Block block) {
+        Map<Block, ChestClass> crates = cratesMap.get(block.getWorld());
+        if (crates == null) return;
+        crates.remove(block);
+        if (crates.size() <= 0) cratesMap.remove(block.getWorld());
     }
 
     public static class Loots {
@@ -285,7 +329,7 @@ public class Database {
         int five_star;
     }
 
-    public static class ChestClass{
+    public static class ChestClass {
         String world;
         private int num;
         int x;

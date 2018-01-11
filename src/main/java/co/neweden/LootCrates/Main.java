@@ -14,7 +14,7 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 
 public class Main extends JavaPlugin implements Listener {
-    private static Main plugin;
+    public static Main plugin;
     static Connection con;
     private static boolean Disabled;
 
@@ -48,7 +48,7 @@ public class Main extends JavaPlugin implements Listener {
         }
 
         Database.initDatabase();
-        Database.loadCrates(); //Check if crates already exists in the db otherwise spawns em
+        //Database.loadCrates(); //Check if crates already exists in the db otherwise spawns em - need to be added OnWorldLoad event
         Timer.startDeSpawnTimer();
     }
 

@@ -1,13 +1,22 @@
 package co.neweden.LootCrates;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.configuration.Configuration;
+import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import static javax.swing.UIManager.getInt;
 
 public class ConfigRetriever {
+    Map<World, WorldClass> WorldConfig = new HashMap<>();
 
     //Max & Min amount of items
     static int MaxItemOneStar;
@@ -29,7 +38,7 @@ public class ConfigRetriever {
     static String database;
 
     //Other Stuff
-    static String WorldConfig;
+    //static ArrayList<World> WorldConfig;
     static boolean Debug;
     private static boolean Enable_Plugin;
     static int MaxCrates;
@@ -124,7 +133,9 @@ public class ConfigRetriever {
         }
 
         //Other Stuff
-        WorldConfig = config.getString("Worlds");
+        List<String> listWorlds = config.getStringList("Worlds");
+
+
         Debug = config.getBoolean("Debug");
         Enable_Plugin = config.getBoolean("Enable-Plugin");
         MaxCrates = config.getInt("Crates.max-amount");
@@ -138,6 +149,19 @@ public class ConfigRetriever {
         max_z = config.getInt("Crates.max-z-distance");
         min_z = config.getInt("Crates.min-z-distance");
     }
+
+
+    public static void AddWorldToMap(World world) {
+        ConfigurationSection worldsInfo = Main.plugin.getConfig().getConfigurationSection("Worlds." + world.getName());
+        for (String key : worldsInfo.getKeys(false)) {
+            getInt("max-spawn");
+            getInt("respawn-frequency");
+        }
+    }
+
+
+
+
 
     public static void checkConfig(boolean activeMessages){
 
@@ -198,4 +222,44 @@ public class ConfigRetriever {
             Main.disablePlugin();
         }
     }
+
+
+
+    public static class WorldClass {
+        World world;
+
+        //Max & Min amount of items
+        static int MaxItemOneStar;
+        static int MinItemOneStar;
+        static int MaxItemTwoStar;
+        static int MinItemTwoStar;
+        static int MaxItemThreeStar;
+        static int MinItemThreeStar;
+        static int MaxItemFourStar;
+        static int MinItemFourStar;
+        static int MaxItemFiveStar;
+        static int MinItemFiveStar;
+
+        //Other Stuff
+        static int MaxCrates;
+        static double MaxSpawnTime;
+        static double MinSpawnTime;
+        static int RespawnFrequency;
+
+        //Max Distance Allowed
+        static int max_x;
+        static int min_x;
+        static int max_z;
+        static int min_z;
+
+        //Item list
+        static ArrayList<Material> OneStar = new ArrayList<>();
+        static ArrayList<Material> TwoStar = new ArrayList<>();
+        static ArrayList<Material> ThreeStar = new ArrayList<>();
+        static ArrayList<Material> FourStar = new ArrayList<>();
+        static ArrayList<Material> FiveStar = new ArrayList<>();
+    }
+
+
+
 }

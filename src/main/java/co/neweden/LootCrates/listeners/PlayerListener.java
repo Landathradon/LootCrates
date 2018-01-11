@@ -21,7 +21,7 @@ public class PlayerListener implements Listener {
         if(c.getType() == Material.CHEST){
 
             //check if chest exists
-            Database.ChestClass chClass = Database.getCrateFromHashMap(c);
+            Database.ChestClass chClass = Database.getCrate(c);
             if(chClass == null){return;}
             event.setCancelled(true);
             event.getPlayer().sendMessage(ConfigRetriever.lootcratesPrefix + ChatColor.RED + ConfigRetriever.BreakChest);
@@ -36,7 +36,7 @@ public class PlayerListener implements Listener {
         Chest c = (Chest) event.getInventory().getHolder();
 
         //check if chest exists
-        Database.ChestClass chest = Database.getCrateFromHashMap(c.getBlock());
+        Database.ChestClass chest = Database.getCrate(c.getBlock());
         if (chest == null) return;
 
         // We need to know if the chest is actually empty or not
@@ -61,7 +61,7 @@ public class PlayerListener implements Listener {
             ChestSpawner.CrateNameTagOverlay(c.getLocation(), null, false);
             Database.removeChest(c.getBlock());
             c.getLocation().getBlock().setType(Material.AIR);
-            ChestSpawner.newChest();
+            ChestSpawner.newChest(c.getWorld());
         }
 
         if (chest.found) return;

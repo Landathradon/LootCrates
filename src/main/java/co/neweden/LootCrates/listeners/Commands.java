@@ -9,6 +9,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandException;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 public class Commands implements CommandExecutor {
     private static Main plugin;
@@ -44,14 +45,14 @@ public class Commands implements CommandExecutor {
                     break;
                 case "delete":
                 case "del":
-                    deleteCratesCom(sender);
+                    deleteCratesCom(sender, args);
                     break;
                 case "current":
                 case "cur":
-                    currentCratesCom(sender);
+                    currentCratesCom(sender, args);
                     break;
                 case "respawn":
-                    respawnCratesCom(sender);
+                    respawnCratesCom(sender, args);
                     break;
                 case "reload":
                 case "rl":
@@ -97,42 +98,77 @@ public class Commands implements CommandExecutor {
         return textReturn.toString();
     }
 
-    private void deleteCratesCom(CommandSender sender) {
-        if (sender.hasPermission("lootcrates.delete")) {
-            Bukkit.getScheduler().cancelAllTasks();
-            int realCount = Database.getCurrentChestsCount();
-            Database.deleteChest();
-            String msg = ChatColor.GREEN + " crates have been" + ChatColor.RED + " deleted";
-            if(realCount > 0) {
-                sender.sendMessage(ChatColor.YELLOW + String.valueOf(realCount) + msg);
-            }else if(realCount == 0){
-                sender.sendMessage(ChatColor.YELLOW + "No" + msg);
-            }
-        } else {
+    private void deleteCratesCom(CommandSender sender, String[] args) {
+        if (!sender.hasPermission("lootcrates.delete")) {
             sender.sendMessage(player_perm);
+            return;
+        }
+        int realCount = Database.getCurrentChestsCount();
+        String msg = ChatColor.GREEN + " crates have been" + ChatColor.RED + " deleted in world: ";
+        if (args.length == 2) {
+            Database.deleteChest(Bukkit.getWorld(args[1]));
+            msg = msg + args[1];
+        } else {
+            if (!(sender instanceof Player)) {
+                sender.sendMessage("You must enter a world ex: /lc del world");
+            } else {
+                Player player = (Player) sender;
+                msg = msg + player.getWorld().getName();
+                Database.deleteChest(player.getWorld());
+            }
+        }
+        if (realCount > 0) {
+            sender.sendMessage(ChatColor.YELLOW + String.valueOf(realCount) + msg);
+        } else if (realCount == 0) {
+            sender.sendMessage(ChatColor.YELLOW + "No" + msg);
         }
     }
 
-    private void currentCratesCom(CommandSender sender) {
+
+    private void currentCratesCom(CommandSender sender, String[] args) {
         if (sender.hasPermission("lootcrates.current")) {
-            sender.sendMessage( ChatColor.GRAY + "There is currently " + ChatColor.YELLOW + Database.getCurrentChestsCount() + ChatColor.GRAY + " crates in the world");
+            int realCount = Database.getCurrentChestsCount();
+            if (args.length == 2) {
+                sender.sendMessage( ChatColor.GRAY + "There is currently " + ChatColor.YELLOW + realCount + ChatColor.GRAY + " crates in the world: " + args[1]);
+            } else {
+                if (!(sender instanceof Player)){sender.sendMessage("You must enter a world ex: /lc cur world");} else {
+                    Player player = (Player) sender;
+                    sender.sendMessage(ChatColor.GRAY + "There is currently " + ChatColor.YELLOW + realCount + ChatColor.GRAY + " crates in the world: " + player.getWorld().getName());
+                }
+            }
         } else {
             sender.sendMessage(player_perm);
         }
     }
 
-    private void respawnCratesCom(CommandSender sender) {
-        if (sender.hasPermission("lootcrates.respawn")) {
-            Bukkit.getScheduler().cancelTasks(plugin);
-            if (Database.getCurrentChestsCount() > 0) {
-                Database.deleteChest();
-                ChestSpawner.CreateChestOnStartup();
-            } else if (Database.getCurrentChestsCount() == 0) {
-                ChestSpawner.CreateChestOnStartup();
-            }
-            sender.sendMessage(ChatColor.GREEN + "Every crates have respawned");
-        } else {
+    private void respawnCratesCom(CommandSender sender, String[] args) {
+        if (!sender.hasPermission("lootcrates.respawn")) {
             sender.sendMessage(player_perm);
+            return;
+        }
+        int realCount = Database.getCurrentChestsCount();
+        if (args.length == 2) {
+            if (realCount > 0) {
+                Database.deleteChest(Bukkit.getWorld(args[1]));
+                ChestSpawner.CreateChestOnStartup(Bukkit.getWorld(args[1]));
+            } else if (realCount == 0) {
+                ChestSpawner.CreateChestOnStartup(Bukkit.getWorld(args[1]));
+            }
+            sender.sendMessage(ChatColor.GREEN + "Every crates have respawned in: " + args[1]);
+        } else {
+            if (!(sender instanceof Player)) {
+                sender.sendMessage("You must enter a world ex: /lc respawn world");
+            } else {
+                Player player = (Player) sender;
+
+                if (realCount > 0) {
+                    Database.deleteChest(player.getWorld());
+                    ChestSpawner.CreateChestOnStartup(player.getWorld());
+                } else if (realCount == 0) {
+                    ChestSpawner.CreateChestOnStartup(player.getWorld());
+                }
+                sender.sendMessage(ChatColor.GREEN + "Every crates have respawned in: " + player.getWorld().getName());
+            }
         }
     }
 
@@ -141,7 +177,6 @@ public class Commands implements CommandExecutor {
             plugin.onDisable();
             plugin.reloadConfig();
             plugin.onEnable();
-            sender.sendMessage("Plugin reloaded");
             sender.sendMessage(ChatColor.GREEN + "[LootCrates] Config reloaded!");
         }
     }

@@ -27,7 +27,7 @@ public class Timer {
             int index = random.nextInt(blocks.length);
             if (index <= 0) return null;
             Block block = (Block) blocks[index];
-            if (!Database.cratesMap.get(block).found)
+            if (!Database.getCrate(block).found)
                 return block;
         }
         return null;
@@ -42,7 +42,7 @@ public class Timer {
     }
 
     static void DespawnChest(Block block, boolean noRespawn) {
-        Database.ChestClass chClass = Database.getCrateFromHashMap(block);
+        Database.ChestClass chClass = Database.getCrate(block);
         if (chClass == null) return;
 
         //Despawn Chests
@@ -50,9 +50,9 @@ public class Timer {
         ch.getInventory().clear();
         ChestSpawner.CrateNameTagOverlay(block.getLocation(), null, false);
         block.getLocation().getBlock().setType(Material.AIR);
-        Database.removeChest(block);
         if (!noRespawn) {
-            ChestSpawner.newChest();
+            ChestSpawner.newChest(Bukkit.getWorld(chClass.world));
         }
+        Database.removeChest(block);
     }
 }
