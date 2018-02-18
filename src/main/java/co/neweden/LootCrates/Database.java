@@ -46,6 +46,7 @@ public class Database {
                 " `z` INT(6) NOT NULL," +
                 " `tier` TINYINT(5) UNSIGNED NOT NULL," +
                 " `found` BOOLEAN NOT NULL DEFAULT FALSE," +
+                " `EntityId` INT(10)," +
                 " PRIMARY KEY (`number`))";
         try {
             PreparedStatement stmt = Main.con.prepareStatement(sql);
@@ -62,9 +63,9 @@ public class Database {
         }
     }
 
-    static void addChestToDatabase(String w, Block block, int tier) {
+    static void addChestToDatabase(String w, Block block, int tier, int EntityId) {
 
-        String sql = "INSERT INTO `chests` (`world`, `x`, `y`, `z`, `tier`, `found`) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO `chests` (`world`, `x`, `y`, `z`, `tier`, `found`, `EntityId`) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try {
             PreparedStatement stmt = Main.con.prepareStatement(sql);
@@ -74,6 +75,7 @@ public class Database {
             stmt.setInt(4, block.getZ());
             stmt.setInt(5, tier);
             stmt.setBoolean(6, false);
+            stmt.setInt(7, EntityId);
             stmt.executeUpdate();
             Main.debugActive(false, "Crate Added to Database", null);
         } catch (SQLException e) {
@@ -249,6 +251,7 @@ public class Database {
                 chClass.z = rs.getInt("z");
                 chClass.tier = rs.getInt("tier");
                 chClass.found = rs.getBoolean("found");
+                chClass.EntityId = rs.getInt("EntityId");
 
                 World world = Bukkit.getWorld(chClass.world);
                 if (world == null) continue;
@@ -337,5 +340,6 @@ public class Database {
         int z;
         public int tier;
         public boolean found; //0 = false; 1 = true;
+        public int EntityId;
     }
 }

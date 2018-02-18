@@ -48,7 +48,7 @@ public class Main extends JavaPlugin implements Listener {
         }
 
         Database.initDatabase();
-        //Database.loadCrates(); //Check if crates already exists in the db otherwise spawns em - need to be added OnWorldLoad event
+        Database.loadCrates(Bukkit.getWorld("world")); //Check if crates already exists in the db otherwise spawns em - need to be added OnWorldLoad event
         Timer.startDeSpawnTimer();
     }
 

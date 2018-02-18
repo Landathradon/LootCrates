@@ -1,12 +1,15 @@
 package co.neweden.LootCrates;
 
 import org.bukkit.*;
+import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+
+import java.util.Objects;
 
 public class ChestSpawner {
 
@@ -79,7 +82,7 @@ public class ChestSpawner {
                     chest.update();
 
                     Inventory ChestInv = chest.getInventory();
-                    CrateNameTagOverlay(chestLoc, ChestName, true);
+                    int EntityId = CrateNameTagOverlay(chestLoc, ChestName);
 
                     while (chestItemInt < ItemAmount) {
                         Material ItemReceived = Chances.randomItems(tier);
@@ -97,8 +100,9 @@ public class ChestSpawner {
                     chClass.z = chestLoc.getBlockZ();
                     chClass.tier = tier;
                     chClass.found = false;
+                    chClass.EntityId = EntityId;
 
-                    Database.addChestToDatabase(chClass.world, chestLoc.getBlock(), chClass.tier);
+                    Database.addChestToDatabase(chClass.world, chestLoc.getBlock(), chClass.tier, chClass.EntityId);
                     Database.storeCrate(chestLoc.getBlock(), chClass);
                     Main.debugActive(false, "A Special Chest Tier " + tier + " has spawned | Try: " + retry, null);
 
@@ -155,20 +159,24 @@ public class ChestSpawner {
         }
     }
 
-    public static void CrateNameTagOverlay(Location loc, String name, boolean state){
+    private static int CrateNameTagOverlay(Location loc, String name) {
         World w = loc.getWorld();
-        Location armorStandLoc = new Location(w,loc.getX()+0.5,loc.getY()-0.5,loc.getZ()+0.5);
+        Location armorStandLoc = new Location(w, loc.getX() + 0.5, loc.getY() - 0.5, loc.getZ() + 0.5);
         ArmorStand as = (ArmorStand) w.spawnEntity(armorStandLoc, EntityType.ARMOR_STAND);
 
-        if(!state) {
-            //when the chest is removed, remove the Armor Stand
-            as.remove(); //Need to check how to remove this because it does not work
-        } else {
-            as.setVisible(false);
-            as.setInvulnerable(true);
-            as.setCustomName(ChatColor.AQUA + name);
-            as.setCustomNameVisible(true);
-            as.setGravity(false);
+        as.setVisible(false);
+        as.setInvulnerable(true);
+        as.setCustomName(ChatColor.AQUA + name);
+        as.setCustomNameVisible(true);
+        as.setGravity(false);
+        return as.getEntityId();
+    }
+    public static void RemoveNameTagOverlay(Block block) {
+        for (org.bukkit.entity.Entity entity : block.getWorld().getEntities()) {
+            int EntityId = Objects.requireNonNull(Database.getCrate(block)).EntityId;
+            if (entity.getEntityId() == EntityId) {
+                entity.remove();
+            }
         }
     }
 

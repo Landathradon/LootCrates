@@ -24,8 +24,9 @@ public class Timer {
     private static Block getRandomChestToDespawn() {
         for (int i = 0; i < 50; i++) {
             Object[] blocks = Database.cratesMap.keySet().toArray();
+            if(blocks.length <= 0) return null;
             int index = random.nextInt(blocks.length);
-            if (index <= 0) return null;
+            if(index <= 0) return null;
             Block block = (Block) blocks[index];
             if (!Database.getCrate(block).found)
                 return block;
@@ -48,7 +49,7 @@ public class Timer {
         //Despawn Chests
         Chest ch = (Chest) block.getState();
         ch.getInventory().clear();
-        ChestSpawner.CrateNameTagOverlay(block.getLocation(), null, false);
+        ChestSpawner.RemoveNameTagOverlay(block);
         block.getLocation().getBlock().setType(Material.AIR);
         if (!noRespawn) {
             ChestSpawner.newChest(Bukkit.getWorld(chClass.world));
