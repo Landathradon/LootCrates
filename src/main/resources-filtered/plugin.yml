@@ -44,6 +44,12 @@ commands:
     usage: /<command>
     permission: lootcrates.respawn
     permission-message: You don't have <permission>
+  LootCrates Hide:
+      aliases: [lc h]
+      description: This will prevent future messages from appearing when the user find a crate
+      usage: /<command>
+      permission: lootcrates.hide
+      permission-message: You don't have <permission>
 permissions:
   lootcrates.*:
     description: Gives access to all LootCrates Commands
@@ -53,6 +59,7 @@ permissions:
       lootcrates.current: true
       lootcrates.respawn: true
       lootcrates.reload: true
+      lootcrates.hide: true
   lootcrates.player:
     description: Allows to check the amount of cratesMap a player has found
     default: not op
@@ -68,3 +75,6 @@ permissions:
   lootcrates.reload:
     description: Allows to reload config
     default: op
+  lootcrates.hide:
+    description: Allows to hide messages
+    default: not op

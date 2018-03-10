@@ -33,6 +33,7 @@ public class PlayerListener implements Listener {
     public void onChestClose(InventoryCloseEvent event) {
         if (!(event.getPlayer() instanceof Player) || !(event.getInventory().getHolder() instanceof Chest)) return;
         Player player = (Player) event.getPlayer();
+        Database.Loots playerData = Database.getPlayerData(player.getUniqueId(), null, "uuid");
         Chest c = (Chest) event.getInventory().getHolder();
 
         //check if chest exists
@@ -48,7 +49,7 @@ public class PlayerListener implements Listener {
         if (itemsLeft > 0 && !chest.found) {
             // Chest was found but still has items
             String FoundChest_NB_Colored = ChatColor.translateAlternateColorCodes('&', ConfigRetriever.FoundChest_NB);
-            player.sendMessage(FoundChest_NB_Colored);
+            if(!playerData.hide) {player.sendMessage(FoundChest_NB_Colored);}
             Timer.despawnCountdown(c.getBlock(), 6000); //6000=5min, 600=30sec
         }
 
@@ -56,7 +57,7 @@ public class PlayerListener implements Listener {
             // All items were removed from the chest
             if (!chest.found) { // Chest was found
                 String FoundChest_Colored = ChatColor.translateAlternateColorCodes('&', ConfigRetriever.FoundChest);
-                player.sendMessage(FoundChest_Colored);
+                if(!playerData.hide) {player.sendMessage(FoundChest_Colored);}
             }
             ChestSpawner.RemoveNameTagOverlay(c.getBlock());
             Database.removeChest(c.getBlock());

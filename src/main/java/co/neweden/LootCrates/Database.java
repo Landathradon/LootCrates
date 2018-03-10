@@ -36,6 +36,7 @@ public class Database {
                 "    `three_star` INT(10) UNSIGNED NOT NULL DEFAULT '0'," +
                 "    `four_star` INT(10) UNSIGNED NOT NULL DEFAULT '0'," +
                 "    `five_star` INT(10) UNSIGNED NOT NULL DEFAULT '0'," +
+                "    `hide` BOOLEAN NOT NULL DEFAULT FALSE," +
                 "    PRIMARY KEY (`uuid` (48)))";
 
         String sql2 = "CREATE TABLE IF NOT EXISTS `chests`(" +
@@ -83,7 +84,7 @@ public class Database {
         }
     }
 
-    public static Loots getPlayerLoots(UUID uuid, String name, String type) {
+    public static Loots getPlayerData(UUID uuid, String name, String type) {
 
         Loots loots = new Loots();
 
@@ -111,6 +112,7 @@ public class Database {
                 loots.three_star = rs.getInt("three_star");
                 loots.four_star = rs.getInt("four_star");
                 loots.five_star = rs.getInt("five_star");
+                loots.hide = rs.getBoolean("hide");
             }
         } catch (SQLException e) {
             Main.debugActive(false, "Could not find anything for this player: " + forValue, e);
@@ -123,7 +125,7 @@ public class Database {
 
         if (chest.found) return true;
 
-        Loots loots = getPlayerLoots(player.getUniqueId(), null, "uuid");
+        Loots loots = getPlayerData(player.getUniqueId(), null, "uuid");
 
         ChestCount chCount = addPlayerChestCount(chest.tier, loots.total, loots.one_star, loots.two_star, loots.three_star, loots.four_star, loots.five_star);
 
@@ -312,6 +314,22 @@ public class Database {
         if (crates.size() <= 0) cratesMap.remove(block.getWorld());
     }
 
+    public static void updateHidePlayerMsg(Player player){
+        Loots playerData = getPlayerData(player.getUniqueId(), null, "uuid");
+        String sql = "UPDATE `loots` SET `hide`= ? WHERE `uuid`= ?;";
+        int hide = (playerData.hide) ? 0 : 1;
+
+        try {
+            PreparedStatement stmt = Main.con.prepareStatement(sql);
+            stmt.setInt(1, hide);
+            stmt.setString(2, player.getUniqueId().toString());
+            stmt.executeUpdate();
+            Main.debugActive(false, "Command Hide updated for player:" + player.getDisplayName(), null);
+        } catch (SQLException e) {
+            Main.debugActive(false, "Command Hide could not update !!", e);
+        }
+    }
+
     public static class Loots {
         String name;
         UUID uuid;
@@ -321,6 +339,7 @@ public class Database {
         public int three_star;
         public int four_star;
         public int five_star;
+        public boolean hide;
     }
 
     public static class ChestCount {

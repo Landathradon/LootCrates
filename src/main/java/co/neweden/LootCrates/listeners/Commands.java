@@ -1,6 +1,7 @@
 package co.neweden.LootCrates.listeners;
 
 import co.neweden.LootCrates.ChestSpawner;
+import co.neweden.LootCrates.ConfigRetriever;
 import co.neweden.LootCrates.Database;
 import co.neweden.LootCrates.Main;
 import org.bukkit.Bukkit;
@@ -58,6 +59,9 @@ public class Commands implements CommandExecutor {
                 case "rl":
                     reloadCom(sender);
                     break;
+                case "hide":
+                    hideCom(sender);
+                    break;
                 default:
                     lcCom(sender);
                     break;
@@ -67,13 +71,18 @@ public class Commands implements CommandExecutor {
         }
     }
 
+    private void hideCom(CommandSender sender) {
+        Database.updateHidePlayerMsg((Player) sender);
+        sender.sendMessage(ConfigRetriever.lootcratesPrefix + "Your message setting has been changed");
+    }
+
     private void playerCratesCom(CommandSender sender, String[] args) {
         if (args.length == 2) {
             if (sender.hasPermission("lootcrates.player")) {
                 Target target = new Target();
                 target.name = args[1].toLowerCase();
                 String playerStatsTitle = "--------- " + ChatColor.GOLD + target.name + "'s Stats ";
-                Database.Loots loots = Database.getPlayerLoots(null, target.name,"name");
+                Database.Loots loots = Database.getPlayerData(null, target.name,"name");
                 sender.sendMessage(ChatColor.GRAY + playerStatsTitle + ChatColor.GRAY + checkSpaceLeft(playerStatsTitle) + ChatColor.WHITE +
                 "\nA total of " + ChatColor.YELLOW + loots.total + ChatColor.WHITE + " Crates were found by this player" +
                 "\nOne Star: " + ChatColor.YELLOW + loots.one_star + ChatColor.WHITE + " | Two Star: " + ChatColor.YELLOW + loots.two_star + ChatColor.WHITE + " | Three Star: " + ChatColor.YELLOW + loots.three_star + ChatColor.WHITE +
@@ -185,10 +194,15 @@ public class Commands implements CommandExecutor {
 
         sender.sendMessage(ChatColor.YELLOW + "Usage:\n" +
                 "/lootcrates player [player] | This show user crates stats\n" +
-                "/lootcrates delete | This delete all current spawned crates\n" +
-                "/lootcrates current | This show how many crates are spawned\n" +
-                "/lootcrates respawn | This will respawn crates up to max amount\n" +
-                "/lootcrates reload | This will reload the plugin's config");
+                "/lootcrates hide | This will hide future messages");
+        if(sender.hasPermission("lootcrates.delete"))
+            sender.sendMessage(ChatColor.YELLOW + "/lootcrates delete | This delete all current spawned crates");
+        if(sender.hasPermission("lootcrates.current"))
+            sender.sendMessage(ChatColor.YELLOW + "/lootcrates current | This show how many crates are spawned");
+        if(sender.hasPermission("lootcrates.respawn"))
+            sender.sendMessage(ChatColor.YELLOW + "/lootcrates respawn | This will respawn crates up to max amount");
+        if(sender.hasPermission("lootcrates.reload"))
+            sender.sendMessage(ChatColor.YELLOW + "/lootcrates reload | This will reload the plugin's config");
     }
 
     private class Target{
