@@ -11,8 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static javax.swing.UIManager.getInt;
-
 public class ConfigRetriever {
     Map<World, WorldClass> WorldConfig = new HashMap<>();
 
@@ -152,14 +150,33 @@ public class ConfigRetriever {
     public static void AddWorldToMap(World world) {
         ConfigurationSection worldsInfo = Main.plugin.getConfig().getConfigurationSection("Worlds." + world.getName());
         for (String key : worldsInfo.getKeys(false)) {
-            getInt("max-spawn");
-            getInt("respawn-frequency");
+            worldsInfo.getInt("max-spawn");
+            worldsInfo.getInt("respawn-frequency");
+            worldsInfo.getDouble("max-spawned-time");
+            worldsInfo.getDouble("min-spawned-time");
+            worldsInfo.getInt("max-x-distance");
+            worldsInfo.getInt("min-x-distance");
+            worldsInfo.getInt("max-z-distance");
+            worldsInfo.getInt("min-z-distance");
+            //Item Lists
+            worldsInfo.getList("Items.One-Star.Items");
+            worldsInfo.getList("Items.Two-Star.Items");
+            worldsInfo.getList("Items.Three-Star.Items");
+            worldsInfo.getList("Items.Four-Star.Items");
+            worldsInfo.getList("Items.Five-Star.Items");
+            worldsInfo.getInt("Items.One-Star.Max-Item");
+            worldsInfo.getInt("Items.One-Star.Min-Item");
+            worldsInfo.getInt("Items.Two-Star.Max-Item");
+            worldsInfo.getInt("Items.Two-Star.Min-Item");
+            worldsInfo.getInt("Items.Three-Star.Max-Item");
+            worldsInfo.getInt("Items.Three-Star.Min-Item");
+            worldsInfo.getInt("Items.Four-Star.Max-Item");
+            worldsInfo.getInt("Items.Four-Star.Min-Item");
+            worldsInfo.getInt("Items.Five-Star.Max-Item");
+            worldsInfo.getInt("Items.Five-Star.Min-Item");
+
         }
     }
-
-
-
-
 
     public static void checkConfig(boolean activeMessages){
 
