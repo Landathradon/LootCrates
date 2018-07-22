@@ -31,8 +31,8 @@ Worlds:
     Items:
       One-Star:
         Items:
-        - 'LOG'
-        - 'WOOD_AXE'
+        - 'OAK_LOG'
+        - 'WOODEN_AXE'
         Max-Item: 4
         Min-Item: 1
       Two-Star:
@@ -72,8 +72,8 @@ Worlds:
     Items:
       One-Star:
         Items:
-        - 'LOG'
-        - 'WOOD_AXE'
+        - 'OAK_LOG'
+        - 'WOODEN_AXE'
         Max-Item: 4
         Min-Item: 1
       Two-Star:
