@@ -4,13 +4,14 @@ import co.neweden.LootCrates.ChestSpawner;
 import co.neweden.LootCrates.ConfigRetriever;
 import co.neweden.LootCrates.Database;
 import co.neweden.LootCrates.Main;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandException;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+
+import static org.bukkit.Bukkit.getWorld;
 
 public class Commands implements CommandExecutor {
     private static Main plugin;
@@ -112,16 +113,18 @@ public class Commands implements CommandExecutor {
             sender.sendMessage(player_perm);
             return;
         }
-        int realCount = Database.getCurrentChestsCount();
-        String msg = ChatColor.GREEN + " crates have been" + ChatColor.RED + " deleted in world: ";
+        int realCount = 0;
+        String msg = ChatColor.GREEN + " crates have been" + ChatColor.RED + " deleted in world: " + ChatColor.YELLOW;
         if (args.length == 2) {
-            Database.deleteChest(Bukkit.getWorld(args[1]));
+            realCount = Database.getCurrentChestsCount(getWorld(args[1]));
+            Database.deleteChest(getWorld(args[1]));
             msg = msg + args[1];
         } else {
             if (!(sender instanceof Player)) {
                 sender.sendMessage("You must enter a world ex: /lc del world");
             } else {
                 Player player = (Player) sender;
+                realCount = Database.getCurrentChestsCount(player.getWorld());
                 msg = msg + player.getWorld().getName();
                 Database.deleteChest(player.getWorld());
             }
@@ -136,13 +139,15 @@ public class Commands implements CommandExecutor {
 
     private void currentCratesCom(CommandSender sender, String[] args) {
         if (sender.hasPermission("lootcrates.current")) {
-            int realCount = Database.getCurrentChestsCount();
+            int realCount;
             if (args.length == 2) {
-                sender.sendMessage( ChatColor.GRAY + "There is currently " + ChatColor.YELLOW + realCount + ChatColor.GRAY + " crates in the world: " + args[1]);
+                realCount = Database.getCurrentChestsCount(getWorld(args[1]));
+                sender.sendMessage( ChatColor.GRAY + "There is currently " + ChatColor.YELLOW + realCount + ChatColor.GRAY + " crates in the world: " + ChatColor.YELLOW + args[1]);
             } else {
                 if (!(sender instanceof Player)){sender.sendMessage("You must enter a world ex: /lc cur world");} else {
                     Player player = (Player) sender;
-                    sender.sendMessage(ChatColor.GRAY + "There is currently " + ChatColor.YELLOW + realCount + ChatColor.GRAY + " crates in the world: " + player.getWorld().getName());
+                    realCount = Database.getCurrentChestsCount(player.getWorld());
+                    sender.sendMessage(ChatColor.GRAY + "There is currently " + ChatColor.YELLOW + realCount + ChatColor.GRAY + " crates in the world: " + ChatColor.YELLOW + player.getWorld().getName());
                 }
             }
         } else {
@@ -155,20 +160,22 @@ public class Commands implements CommandExecutor {
             sender.sendMessage(player_perm);
             return;
         }
-        int realCount = Database.getCurrentChestsCount();
+        int realCount;
         if (args.length == 2) {
+            realCount = Database.getCurrentChestsCount(getWorld(args[1]));
             if (realCount > 0) {
-                Database.deleteChest(Bukkit.getWorld(args[1]));
-                ChestSpawner.CreateChestOnStartup(Bukkit.getWorld(args[1]));
+                Database.deleteChest(getWorld(args[1]));
+                ChestSpawner.CreateChestOnStartup(getWorld(args[1]));
             } else if (realCount == 0) {
-                ChestSpawner.CreateChestOnStartup(Bukkit.getWorld(args[1]));
+                ChestSpawner.CreateChestOnStartup(getWorld(args[1]));
             }
-            sender.sendMessage(ChatColor.GREEN + "Every crates have respawned in: " + args[1]);
+            sender.sendMessage(ChatColor.GREEN + "Every crates have respawned in: " + ChatColor.YELLOW + args[1]);
         } else {
             if (!(sender instanceof Player)) {
                 sender.sendMessage("You must enter a world ex: /lc respawn world");
             } else {
                 Player player = (Player) sender;
+                realCount = Database.getCurrentChestsCount(player.getWorld());
 
                 if (realCount > 0) {
                     Database.deleteChest(player.getWorld());
@@ -176,7 +183,7 @@ public class Commands implements CommandExecutor {
                 } else if (realCount == 0) {
                     ChestSpawner.CreateChestOnStartup(player.getWorld());
                 }
-                sender.sendMessage(ChatColor.GREEN + "Every crates have respawned in: " + player.getWorld().getName());
+                sender.sendMessage(ChatColor.GREEN + "Every crates have respawned in: " + ChatColor.YELLOW + player.getWorld().getName());
             }
         }
     }

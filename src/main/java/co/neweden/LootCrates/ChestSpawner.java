@@ -66,11 +66,13 @@ public class ChestSpawner {
             Material side4 = new Location(chestLoc.getWorld(), chestLoc.getX(), chestLoc.getY(), chestLoc.getZ() - 1).getBlock().getType();
             if (//Items you don't want the chest to spawn on OR near
                     !belowBlock.equals(Material.WATER) &&
-                            !belowBlock.equals(Material.LEGACY_STATIONARY_WATER) &&
                             !belowBlock.equals(Material.LAVA) &&
-                            !belowBlock.equals(Material.LEGACY_STATIONARY_LAVA) &&
-                            !belowBlock.equals(Material.LEGACY_LEAVES) &&
-                            !belowBlock.equals(Material.LEGACY_LEAVES_2) &&
+                            !belowBlock.equals(Material.OAK_LEAVES) &&
+                            !belowBlock.equals(Material.ACACIA_LEAVES) &&
+                            !belowBlock.equals(Material.BIRCH_LEAVES) &&
+                            !belowBlock.equals(Material.DARK_OAK_LEAVES) &&
+                            !belowBlock.equals(Material.JUNGLE_LEAVES) &&
+                            !belowBlock.equals(Material.SPRUCE_LEAVES) &&
                             !side1.equals(Material.CHEST) &&
                             !side2.equals(Material.CHEST) &&
                             !side3.equals(Material.CHEST) &&
@@ -125,7 +127,7 @@ public class ChestSpawner {
         for (int i = 0; i < ConfigRetriever.MaxCrates; i++) {
             newChest(w);
         }
-        Main.debugActive(true,(Database.getCurrentChestsCount()) + " Crates have been spawned", null);
+        Main.debugActive(true,(Database.getCurrentChestsCount(w)) + " Crates have been spawned", null);
     }
 
     public static void newChest(World w){

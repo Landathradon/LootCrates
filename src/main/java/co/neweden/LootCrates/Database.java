@@ -229,8 +229,16 @@ public class Database {
         return chCount;
     }
 
-    public static int getCurrentChestsCount() {
-        return cratesMap.size();
+    public static int getCurrentChestsCount(World world) {
+        if(cratesMap.isEmpty()){
+            return 0;
+        } else {
+            return cratesMap.get(world).size();
+        }
+
+
+
+
     }
 
     static void loadCrates(World w) {
