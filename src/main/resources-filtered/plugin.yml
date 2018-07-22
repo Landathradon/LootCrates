@@ -4,6 +4,7 @@ main: co.neweden.LootCrates.Main
 author: armadyl010
 description: Spawns random Loot Crates in the world
 website: https://neweden.co
+api-version: 1.13
 depend: [LandManager]
 commands:
   LootCrates:
